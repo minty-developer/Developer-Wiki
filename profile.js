@@ -5,6 +5,7 @@ const currentLang = params.get("lang") || "ko";
 document.documentElement.lang = currentLang;
 
 const STORAGE_KEY = "profiles";
+const DEFAULT_IMAGE = "images/default-profile.png";
 
 /* =============================
     Home Button
@@ -32,16 +33,16 @@ function saveProfiles(data) {
 
 /* =============================
    Init Cache Load (robust)
-   ============================= */
+============================= */
 
 async function loadDevelopers() {
+
   const stored = localStorage.getItem(STORAGE_KEY);
 
   if (stored) {
     return JSON.parse(stored);
   }
 
-  // 시도할 경로들 (프로젝트에 따라 위치가 다를 수 있어서 순차 시도)
   const paths = [
     "./data/developers.json",
     "/Developer-Wiki/data/developers.json",
@@ -50,22 +51,24 @@ async function loadDevelopers() {
   ];
 
   for (const p of paths) {
+
     try {
+
       const res = await fetch(p);
-      if (!res.ok) {
-        // 404 등 응답 실패면 다음 경로 시도
-        continue;
-      }
+
+      if (!res.ok) continue;
+
       const data = await res.json();
+
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
       return data;
+
     } catch (err) {
-      // 네트워크 에러 등 무시하고 다음 경로 시도
       continue;
     }
   }
 
-  // 모두 실패하면 빈 배열 반환 (호출부에서 dev 체크하므로 안전)
   console.error("Failed to load developers.json from any known path.");
   return [];
 }
@@ -84,6 +87,7 @@ document.querySelectorAll("[data-lang]").forEach(btn => {
     window.location.href =
       `profile.html?id=${id}&lang=${btn.dataset.lang}`;
   });
+
 });
 
 /* =============================
@@ -91,10 +95,31 @@ document.querySelectorAll("[data-lang]").forEach(btn => {
 ============================= */
 
 function clearBoxes() {
+
   document.getElementById("profile-stack").innerHTML = "";
   document.getElementById("profile-interests").innerHTML = "";
   document.getElementById("profile-projects").innerHTML = "";
   document.getElementById("profile-links").innerHTML = "";
+
+}
+
+/* =============================
+   Image Safe Loader
+============================= */
+
+function setSafeImage(imgElement, src) {
+
+  if (!src) {
+    imgElement.src = DEFAULT_IMAGE;
+    return;
+  }
+
+  imgElement.src = src;
+
+  imgElement.onerror = () => {
+    imgElement.src = DEFAULT_IMAGE;
+  };
+
 }
 
 /* =============================
@@ -107,8 +132,10 @@ function renderProfile(dev) {
 
   clearBoxes();
 
-  // Top
-  document.getElementById("profile-image").src = dev.image;
+  /* Top */
+
+  const img = document.getElementById("profile-image");
+  setSafeImage(img, dev.image);
 
   document.getElementById("profile-activity").textContent =
     dev.activityName[currentLang];
@@ -119,8 +146,10 @@ function renderProfile(dev) {
   document.getElementById("profile-tagline").textContent =
     dev.tagline[currentLang];
 
-  // Basic Info
+  /* Basic Info */
+
   document.getElementById("profile-name").textContent = dev.name;
+
   document.getElementById("profile-affiliation").textContent =
     dev.affiliation;
 
@@ -128,24 +157,31 @@ function renderProfile(dev) {
     dev.startedYear;
 
   /* Stack */
+
   const stackBox = document.getElementById("profile-stack");
 
   dev.stack.forEach(s => {
+
     const span = document.createElement("span");
     span.textContent = s;
     stackBox.appendChild(span);
+
   });
 
   /* Interests */
+
   const interestBox = document.getElementById("profile-interests");
 
   dev.interests.forEach(i => {
+
     const span = document.createElement("span");
     span.textContent = i;
     interestBox.appendChild(span);
+
   });
 
   /* Projects */
+
   const projectBox = document.getElementById("profile-projects");
 
   dev.projects.forEach(p => {
@@ -169,9 +205,11 @@ function renderProfile(dev) {
     div.appendChild(link);
 
     projectBox.appendChild(div);
+
   });
 
   /* External Links */
+
   const linkBox = document.getElementById("profile-links");
 
   Object.entries(dev.links).forEach(([key, value]) => {
@@ -179,12 +217,15 @@ function renderProfile(dev) {
     if (!value) return;
 
     const a = document.createElement("a");
+
     a.href = value;
     a.target = "_blank";
     a.textContent = key.toUpperCase();
 
     linkBox.appendChild(a);
+
   });
+
 }
 
 /* =============================
@@ -202,7 +243,9 @@ function updateAndRenderProfile(id, newData) {
   saveProfiles(updated);
 
   const dev = updated.find(d => d.id === id);
+
   renderProfile(dev);
+
 }
 
 /* =============================
