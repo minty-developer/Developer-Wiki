@@ -1,0 +1,422 @@
+/* =========================
+   Developer Wiki v0.1.0
+   Dark Code Theme
+========================= */
+
+:root {
+  /* Background */
+  --bg-primary: #0d1117;
+  --bg-surface: #161b22;
+  --bg-elevated: #21262d;
+
+  /* Text */
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+
+  /* Accent */
+  --accent: #58a6ff;
+  --accent-hover: #79c0ff;
+
+  /* Border */
+  --border-color: #30363d;
+
+  /* Radius */
+  --radius: 12px;
+}
+
+/* ===== Reset ===== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Inter", "Pretendard", sans-serif;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ===== Header ===== */
+
+header {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.head_box {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.title_box h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.title_box h3 {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* ===== Language Buttons ===== */
+
+.rang_select_box {
+  display: flex;
+  gap: 8px;
+}
+
+/* Admin 버튼을 완전 오른쪽 끝으로 */
+.admin-btn {
+  margin-left: auto;   /* 이게 핵심 */
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.admin-btn:hover {
+  opacity: 0.85;
+}
+
+.rang_select_box button {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.rang_select_box button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.rang_select_box button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ===== header-right ===== */
+
+/* 오른쪽 영역 묶기 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* ===== Main Layout ===== */
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* ===== Control Section ===== */
+
+.Control_Section {
+  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* ===== Card Grid ===== */
+
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* ===== Card ===== */
+
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: 0.25s ease;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  background-color: var(--bg-elevated);
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(88, 166, 255, 0.15);
+}
+
+/* Card Inner */
+
+.card-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+  border: 2px solid var(--border-color);
+}
+
+.card-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.card-bio {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+/* Stack */
+
+.card-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.card-stack span {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  background-color: var(--bg-primary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  transition: 0.2s ease;
+}
+
+.card-stack span:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ===== Admin Page ===== */
+
+.admin-container {
+  max-width: 800px;
+  margin: 60px auto;
+}
+
+.admin-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 40px;
+}
+
+.admin-card h2 {
+  margin-bottom: 30px;
+  font-size: 20px;
+}
+
+.admin-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.admin-actions button {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.admin-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Back 버튼 */
+.back-btn {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.back-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ===== Admin Login ===== */
+
+.admin-login {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 40px;
+  max-width: 400px;
+  margin: 100px auto;
+  text-align: center;
+}
+
+.admin-login h2 {
+  margin-bottom: 25px;
+}
+
+.admin-login input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  margin-bottom: 15px;
+}
+
+.admin-login button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: white;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.admin-login button:hover {
+  opacity: 0.9;
+}
+
+.login-error {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #ff6b6b;
+}
+
+/* =========================
+   Index Search Area
+========================= */
+
+.Control_Section {
+  margin-bottom: 35px;
+}
+
+/* 검색창 */
+
+#searchInput {
+  width: 100%;
+  max-width: 420px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+#searchInput:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15);
+}
+
+/* Placeholder */
+
+#searchInput::placeholder {
+  color: var(--text-secondary);
+}
+
+/* =========================
+   Header Layout Fix
+========================= */
+
+header {
+  padding: 20px 0;
+}
+
+.head_box {
+  padding: 0 20px;
+  justify-content: space-between;
+}
+
+/* Header Right Grouping */
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Language Buttons Container */
+
+.rang_select_box {
+  display: flex;
+  gap: 8px;
+}
+
+/* =========================
+   Card Grid Padding
+========================= */
+
+.Card_Section {
+  padding-top: 10px;
+}
+
+/* 카드 기본 애니메이션 강화 */
+
+.card {
+  will-change: transform;
+}
+
+/* =========================
+   Mobile Optimization
+========================= */
+
+@media (max-width: 768px) {
+
+  .Control_Section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  #searchInput {
+    max-width: 100%;
+  }
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+  .head_box {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  main {
+    padding: 30px 15px;
+  }
+}

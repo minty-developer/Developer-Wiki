@@ -1,0 +1,56 @@
+[
+  {
+    "id": "minty",
+
+    "activityName": {
+      "ko": "Minty",
+      "en": "Minty",
+      "ja": "ミンティ"
+    },
+
+    "name": "김민승",
+
+    "role": {
+      "ko": "소프트웨어 개발자",
+      "en": "Sorftware Developer",
+      "ja": "ソフトウェア開発者(かいはつしゃ)"
+    },
+
+    "tagline": {
+      "ko": "웹사이트을 만드는 학생 개발자",
+      "en": "Student developer building website",
+      "ja": "ウェブサイトを作(つく)る学生(がくせい)開発者(かいはつしゃ)"
+    },
+
+    "affiliation": "대덕소프트웨어마이스터고등학교",
+
+    "startedYear": 2023,
+
+    "stack": ["HTML", "CSS", "JavaScript", "C", "Python"],
+
+    "interests": [
+      "Web Frontend",
+      "Web Backend"
+    ],
+
+    "projects": [
+      {
+        "name": "Discord Bot",
+        "description": {
+          "ko": "디스코드 이코노미 봇",
+          "en": "discord economy bot",
+          "ja": "Discord　economy　ボット"
+        },
+        "link": "https://github.com/minty-developer/Country_Server_Bot"
+      }
+    ],
+
+    "links": {
+      "github": "https://github.com/minty-developer",
+      "blog": "",
+      "email": "mailto:gimminseung036@gmail.com"
+    },
+
+    "image": "assets/images/defaultprofile.jpg"
+  }
+]

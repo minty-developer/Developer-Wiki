@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <title>Developer Wiki</title>
+    </head>
+    <body>
+        <header>
+            <div class="head_box">
+
+            <div class="title_box">
+                <h1 data-i18n="site_title">개발자 위키</h1>
+                <h3 data-i18n="site_subtitle">개발자 소개 공간</h3>
+            </div>
+
+            <div class="rang_select_box">
+                <button data-lang="ko">한국어</button>
+                <button data-lang="en">English</button>
+                <button data-lang="ja">日本語</button>
+            </div>
+
+            <button class="admin-btn" onclick="location.href='admin.html'">
+                Admin
+            </button>
+
+            </div>
+        </header>
+
+        <main>
+            <section class="Control_Section">
+                <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="검색...">
+                <!--태그 필터-->
+            </section>
+            <section class="Card_Section">
+                <div class="card-container">
+                    <!--카드 동적 생성-->
+                </div>
+            </section>
+        </main>
+        <script src="i18n.js"></script>
+        <script src="script.js"></script>
+    </body>
+</html>

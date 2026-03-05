@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="profile_style.css">
+  <title>Developer Profile</title>
+</head>
+<body>
+
+<header>
+  <div class="head_box">
+    <div class="title_box">
+      <h1 data-i18n="site_title">개발자 위키</h1>
+      <h3 data-i18n="site_subtitle">개발자 소개 공간</h3>
+    </div>
+    <div class="rang_select_box">
+      <button data-lang="ko">한국어</button>
+      <button data-lang="en">English</button>
+      <button data-lang="ja">日本語</button>
+    </div>
+    <button id="homeBtn" class="home-btn">홈으로</button>
+  </div>
+</header>
+
+<main>
+  <section class="profile-container">
+
+    <div class="profile-top">
+      <img class="profile-image" id="profile-image">
+      <div class="profile-basic">
+        <h2 class="profile-activity" id="profile-activity"></h2>
+        <h3 class="profile-role" id="profile-role"></h3>
+        <p class="profile-tagline" id="profile-tagline"></p>
+      </div>
+    </div>
+
+    <div class="profile-section">
+      <h3>Basic Info</h3>
+      <p><strong>Name:</strong> <span id="profile-name"></span></p>
+      <p><strong>Affiliation:</strong> <span id="profile-affiliation"></span></p>
+      <p><strong>Started:</strong> <span id="profile-started"></span></p>
+    </div>
+
+    <div class="profile-section">
+      <h3>Tech Stack</h3>
+      <div class="profile-stack" id="profile-stack"></div>
+    </div>
+
+    <div class="profile-section">
+      <h3>Interests</h3>
+      <div class="profile-interests" id="profile-interests"></div>
+    </div>
+
+    <div class="profile-section">
+      <h3>Projects</h3>
+      <div class="profile-projects" id="profile-projects"></div>
+    </div>
+
+    <div class="profile-section">
+      <h3>Links</h3>
+      <div class="profile-links" id="profile-links"></div>
+    </div>
+
+  </section>
+</main>
+
+<script src="i18n.js"></script>
+<script src="profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <title>Admin Panel</title>
+</head>
+<body>
+
+<header>
+  <div class="head_box">
+    <div class="title_box">
+      <h1>Admin Panel</h1>
+      <h3>관리자 전용 페이지</h3>
+    </div>
+
+    <button onclick="location.href='index.html'" class="back-btn">
+      ← Back
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="admin-container">
+
+    <!-- 로그인 카드 -->
+    <div class="admin-login" id="adminLogin">
+      <h2>관리자 인증</h2>
+      <input type="password" id="adminPassword" placeholder="비밀번호 입력">
+      <button id="loginBtn">로그인</button>
+      <p id="loginError" class="login-error"></p>
+    </div>
+
+    <!-- 관리자 패널 (처음엔 숨김) -->
+    <div class="admin-card" id="adminPanel" style="display: none;">
+      <h2>관리자 메뉴</h2>
+
+      <div class="admin-actions">
+        <button id="editProfiles">프로필 수정</button>
+        <div id="editModal" style="display:none">
+
+          <h3>프로필 수정</h3>
+
+          <input id="editId" placeholder="수정할 ID 입력">
+          <button id="loadEditBtn">데이터 불러오기</button>
+
+          <hr>
+
+          <input id="editName" placeholder="이름"><br>
+
+          <input id="editActivityKo" placeholder="Activity KO"><br>
+          <input id="editActivityEn" placeholder="Activity EN"><br>
+          <input id="editActivityJa" placeholder="Activity JA"><br>
+
+          <input id="editRoleKo" placeholder="Role KO"><br>
+          <input id="editRoleEn" placeholder="Role EN"><br>
+          <input id="editRoleJa" placeholder="Role JA"><br>
+
+          <input id="editTaglineKo" placeholder="Tagline KO"><br>
+          <input id="editTaglineEn" placeholder="Tagline EN"><br>
+          <input id="editTaglineJa" placeholder="Tagline JA"><br>
+
+          <input id="editAffiliation" placeholder="Affiliation"><br>
+
+          <input id="editStartedYear" type="number" placeholder="Started Year"><br>
+
+          <input id="editStack" placeholder="Stack (콤마)"><br>
+          <input id="editInterests" placeholder="Interests (콤마)"><br>
+
+          <input id="editGithub" placeholder="Github"><br>
+          <input id="editBlog" placeholder="Blog"><br>
+          <input id="editEmail" placeholder="Email"><br>
+
+          <button id="saveEditBtn">저장</button>
+          <button onclick="document.getElementById('editModal').style.display='none'">닫기</button>
+
+          </div>
+        <button id="addProfileBtn">프로필 추가</button>
+        <div id="addModal" style="display:none">
+          <h3>상세 프로필 추가</h3>
+
+          <input id="newId" placeholder="ID"><br>
+          <input id="newName" placeholder="이름"><br>
+
+          <h4>Activity Name</h4>
+          <input id="newActivityKo" placeholder="Activity KO"><br>
+          <input id="newActivityEn" placeholder="Activity EN"><br>
+          <input id="newActivityJa" placeholder="Activity JA"><br>
+
+          <h4>Role</h4>
+          <input id="newRoleKo" placeholder="Role KO"><br>
+          <input id="newRoleEn" placeholder="Role EN"><br>
+          <input id="newRoleJa" placeholder="Role JA"><br>
+
+          <h4>Tagline</h4>
+          <input id="newTaglineKo" placeholder="Tagline KO"><br>
+          <input id="newTaglineEn" placeholder="Tagline EN"><br>
+          <input id="newTaglineJa" placeholder="Tagline JA"><br>
+
+          <input id="newAffiliation" placeholder="Affiliation"><br>
+          <input id="newStartedYear" type="number" placeholder="Started Year"><br>
+
+          <h4>Stack (콤마로 구분)</h4>
+          <input id="newStack" placeholder="HTML, CSS, JS"><br>
+
+          <h4>Interests (콤마로 구분)</h4>
+          <input id="newInterests" placeholder="Game, Web"><br>
+
+          <h4>Links</h4>
+          <input id="newGithub" placeholder="GitHub URL"><br>
+          <input id="newBlog" placeholder="Blog URL"><br>
+          <input id="newEmail" placeholder="Email (mailto:)"><br>
+          <br>
+
+          <button id="saveAddBtn">저장</button>
+
+          <button onclick="document.getElementById('addModal').style.display='none'">
+          닫기
+          </button>
+        </div>
+        <button id="deleteProfile">프로필 삭제</button>
+        <div id="deleteModal" style="display:none">
+
+          <h3>프로필 삭제</h3>
+
+          <input id="deleteId" placeholder="삭제할 ID 입력">
+
+          <br><br>
+
+          <button id="confirmDeleteBtn">삭제</button>
+          <button onclick="document.getElementById('deleteModal').style.display='none'">
+          닫기
+          </button>
+
+          </div>
+        <button id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script src="admin.js"></script>
+</body>
+</html>
