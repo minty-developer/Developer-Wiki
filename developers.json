@@ -39,7 +39,7 @@
         "description": {
           "ko": "디스코드 이코노미 봇",
           "en": "discord economy bot",
-          "ja": "Discord　economy　ボット"
+          "ja": "Discord economy ボット"
         },
         "link": "https://github.com/minty-developer/Country_Server_Bot"
       }
@@ -54,7 +54,6 @@
     "image": "assets/images/defaultprofile.jpg"
   },
 
-  
   {
     "id": "suil",
 
@@ -108,7 +107,6 @@
         },
         "link": "about:blank"
       },
-
       {
         "name": "Elasfunkin' Revival",
         "description": {
@@ -127,6 +125,5 @@
     },
 
     "image": "assets/images/suil.png"
-  },
-
+  }
 ]
