@@ -12,7 +12,7 @@
 
     "role": {
       "ko": "소프트웨어 개발자",
-      "en": "Sorftware Developer",
+      "en": "Software Developer",
       "ja": "ソフトウェア開発者(かいはつしゃ)"
     },
 
@@ -127,3 +127,4 @@
     "image": "assets/images/suil.png"
   }
 ]
+
