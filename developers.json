@@ -52,5 +52,81 @@
     },
 
     "image": "assets/images/defaultprofile.jpg"
-  }
+  },
+
+  
+  {
+    "id": "suil",
+
+    "activityName": {
+      "ko": "수리",
+      "en": "Suil",
+      "ja": "スーリ"
+    },
+
+    "name": "미상",
+
+    "role": {
+      "ko": "Butterscotch팀의 Eliasfunkin' Revival 소스 코더",
+      "en": "Butterscotch team's Eliasfunkin' Revival source coder",
+      "ja": "Butterscotchチームの Eliasfunkin' Revival ソースコーダー"
+    },
+
+    "tagline": {
+      "ko": "끝까지 나아가는 게임 개발/백엔드 개발자",
+      "en": "Student developer building website",
+      "ja": "ウェブサイトを作(つく)る学生(がくせい)開発者(かいはつしゃ)"
+    },
+
+    "affiliation": "대덕소프트웨어마이스터고등학교",
+
+    "startedYear": 2023,
+
+    "stack": ["C", "Python", "Java", "HTML", "CSS", "Haxe"],
+
+    "interests": [
+      "Develop game",
+      "Web"
+    ],
+
+    "projects": [
+      {
+        "name": "독수리봇 마크2",
+        "description": {
+          "ko": "디스코드, 개인작업",
+          "en": "Discord, Personal Work",
+          "ja": "Discord、個人作業"
+        },
+        "link": "about:blank"
+      },
+      {
+        "name": "로봇 코딩",
+        "description": {
+          "ko": "대회, 우수상 수상, 팀프로젝트",
+          "en": "Competition, Excellence Award, Team Project",
+          "ja": "大会、優秀賞受賞、チームプロジェクト"
+        },
+        "link": "about:blank"
+      },
+
+      {
+        "name": "Elasfunkin' Revival",
+        "description": {
+          "ko": "FNF모드(게임), 영상 조회수 2만회, 팀프로젝트",
+          "en": "FNF mode (game), 20,000 video views, team project",
+          "ja": "FNFモード（ゲーム）、動画再生回数2万回、チームプロジェクト"
+        },
+        "link": "https://gamebanana.com/wips/98493"
+      }
+    ],
+
+    "links": {
+      "github": "https://github.com/suil0304",
+      "blog": "",
+      "email": "mailto:eagle030410@gmail.com"
+    },
+
+    "image": "assets/images/suil.png"
+  },
+
 ]
