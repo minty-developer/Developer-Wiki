@@ -110,6 +110,22 @@ header {
   color: var(--accent);
 }
 
+.discord-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.discord-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  cursor: pointer;
+}
+
 /* ===== header-right ===== */
 
 /* 오른쪽 영역 묶기 */
@@ -419,4 +435,5 @@ header {
   main {
     padding: 30px 15px;
   }
+
 }
