@@ -31,8 +31,8 @@ function saveProfiles(data) {
 }
 
 /* =============================
-   Init Cache Load
-============================= */
+   Init Cache Load (robust)
+   ============================= */
 
 async function loadDevelopers() {
   const stored = localStorage.getItem(STORAGE_KEY);
@@ -41,12 +41,33 @@ async function loadDevelopers() {
     return JSON.parse(stored);
   }
 
-  const res = await fetch("data/developers.json");
-  const data = await res.json();
+  // 시도할 경로들 (프로젝트에 따라 위치가 다를 수 있어서 순차 시도)
+  const paths = [
+    "./data/developers.json",
+    "/Developer-Wiki/data/developers.json",
+    "./developers.json",
+    "/Developer-Wiki/developers.json"
+  ];
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  for (const p of paths) {
+    try {
+      const res = await fetch(p);
+      if (!res.ok) {
+        // 404 등 응답 실패면 다음 경로 시도
+        continue;
+      }
+      const data = await res.json();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return data;
+    } catch (err) {
+      // 네트워크 에러 등 무시하고 다음 경로 시도
+      continue;
+    }
+  }
 
-  return data;
+  // 모두 실패하면 빈 배열 반환 (호출부에서 dev 체크하므로 안전)
+  console.error("Failed to load developers.json from any known path.");
+  return [];
 }
 
 /* =============================
@@ -195,4 +216,5 @@ loadDevelopers().then(data => {
   if (!dev) return;
 
   renderProfile(dev);
+
 });
