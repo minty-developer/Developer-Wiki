@@ -51,7 +51,7 @@
       "email": "mailto:gimminseung036@gmail.com"
     },
 
-    "image": "assets/images/defaultprofile.jpg"
+    "image": "images/default-profile.png"
   },
 
   {
@@ -124,7 +124,8 @@
       "email": "mailto:eagle030410@gmail.com"
     },
 
-    "image": "assets/images/suil.png"
+    "image": "/images/suil.png"
   }
 ]
+
 
