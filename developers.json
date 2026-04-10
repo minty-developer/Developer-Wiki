@@ -42,6 +42,24 @@
           "ja": "Discord economy ボット"
         },
         "link": "https://github.com/minty-developer/Country_Server_Bot"
+      }, 
+      {
+        "name": "Page Loop",
+        "description": {
+          "ko": "웹 책 뷰어",
+          "en": "web book viewer",
+          "ja": "ウェブ本ビューアー"
+        },
+        "link": "https://minty-developer.github.io/Page_Loop"
+      }, 
+      {
+        "name": "Exercise Timer",
+        "description": {
+          "ko": "운동용 타이머",
+          "en": "Timer for exercises",
+          "ja": "運動用タイマー"
+        },
+        "link": "https://minty-developer.github.io/Exercise_Timer"
       }
     ],
 
