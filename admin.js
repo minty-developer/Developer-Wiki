@@ -1,33 +1,8 @@
-import {
-  getAuth,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
-
-const storage = getStorage();
+import { db, auth, storage } from "./firebase.js";
 
 /* =========================
    Firebase 재사용
 ========================= */
-
-const auth = getAuth();
-const db = getFirestore();
 
 const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
 
