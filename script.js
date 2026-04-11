@@ -5,15 +5,6 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "...",
-  authDomain: "developer-wiki-31ea9.firebaseapp.com",
-  projectId: "developer-wiki-31ea9",
-  storageBucket: "developer-wiki-31ea9.firebasestorage.app",
-  messagingSenderId: "305676986631",
-  appId: "1:305676986631:web:893587ce1f950fb5a8bda2"
-};
-
 const params = new URLSearchParams(window.location.search);
 const currentLang = params.get("lang") || "ko";
 

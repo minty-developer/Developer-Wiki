@@ -141,3 +141,13 @@ window.addEventListener("DOMContentLoaded", async () => {
   renderProfile(dev);
 
 });
+
+/* =============================
+   Home Button
+============================= */
+
+const homeBtn = document.getElementById("homeBtn");
+
+homeBtn.addEventListener(onclick, () => {
+  location.href="https://minty-developer.github.io/Developer-Wiki/";
+});
