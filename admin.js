@@ -151,7 +151,7 @@ document.getElementById("saveAddBtn").onclick = async () => {
     links: {
       github: document.getElementById("newGithub").value,
       blog: document.getElementById("newBlog").value,
-      email: document.getElementById("newEmail").value
+      email: "mailto:" + document.getElementById("newEmail").value
     },
 
     image: imageUrl
