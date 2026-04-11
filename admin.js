@@ -164,6 +164,18 @@ document.getElementById("loadEditBtn").onclick = async () => {
 
   window.currentDocId = profile.docId;
 
+document.getElementById("editName").value = profile.name || "";
+
+document.getElementById("editActivityKo").value = profile.activityName?.ko || "";
+document.getElementById("editActivityEn").value = profile.activityName?.en || "";
+document.getElementById("editActivityJa").value = profile.activityName?.ja || "";
+
+document.getElementById("editRoleKo").value = profile.role?.ko || "";
+document.getElementById("editRoleEn").value = profile.role?.en || "";
+document.getElementById("editRoleJa").value = profile.role?.ja || "";
+
+/* 🔥 추가된 부분 */
+
 document.getElementById("editTaglineKo").value = profile.tagline?.ko || "";
 document.getElementById("editTaglineEn").value = profile.tagline?.en || "";
 document.getElementById("editTaglineJa").value = profile.tagline?.ja || "";

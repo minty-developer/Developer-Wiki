@@ -72,6 +72,18 @@
           <input id="editEmail" placeholder="Email"><br>
 
           <input id="editStartedYear" type="number" placeholder="Started Year"><br>
+          <h4>Projects</h4>
+          <textarea id="editProjects" placeholder='JSON 형식 입력' aria-placeholder=`[
+  {
+    "name": "포트폴리오 사이트",
+    "description": {
+      "ko": "개인 사이트",
+      "en": "Portfolio site",
+      "ja": "ポートフォリオサイト"
+    },
+    "link": "https://example.com"
+  }
+]`></textarea>
 
           <button id="saveEditBtn">저장</button>
           <button onclick="document.getElementById('editModal').style.display='none'">닫기</button>
@@ -118,6 +130,9 @@
           <input type="file" id="newImageFile">
           <br>
           <img id="previewImage" style="width:100px; margin-top:10px;">
+
+          <h4>Projects</h4>
+          <textarea id="newProjects" placeholder='JSON 형식 입력'></textarea>
 
           <button id="saveAddBtn">저장</button>
 
