@@ -145,8 +145,6 @@
 <script type="module">
 import { getFirestore, collection, getDocs, addDoc } 
   from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-
-const db = getFirestore(app);
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
@@ -162,6 +160,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
 
