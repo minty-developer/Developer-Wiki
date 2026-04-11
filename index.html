@@ -43,8 +43,14 @@
             </section>
         </main>
         <script type="module">
+            import { getFirestore, collection, getDocs, addDoc } 
+                from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+            const db = getFirestore(app);
+
             import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
             import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+            import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
             const firebaseConfig = {
                 apiKey: "AIzaSyCf2s8LFTq7RT5QE-Dm29wPiKnfM0NiCC0",
@@ -58,6 +64,12 @@
 
             // 초기화
             const app = initializeApp(firebaseConfig);
+
+            const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
+
+            function isAdmin(user) {
+            return user && user.uid === ADMIN_UID;
+            }
 
             // 🔥 추가해야 하는 핵심 3줄
             const auth = getAuth(app);
@@ -73,6 +85,23 @@
                         console.error(err);
                     });
             };
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    console.log("이미 로그인됨", user.uid);
+                } else {
+                    console.log("로그아웃 상태");
+                }
+                const loginBtn = document.getElementById("loginBtn");
+
+                if (user) {
+                    loginBtn.textContent = "로그아웃";
+                    loginBtn.onclick = () => signOut(auth);
+                } else {
+                    loginBtn.textContent = "Google Login";
+                }
+            });
+
         </script>
         <script src="script.js"></script>
     </body>

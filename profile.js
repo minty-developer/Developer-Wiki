@@ -23,8 +23,12 @@ if (homeBtn) {
    Storage Helper
 ============================= */
 
-function getProfiles() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+async function getProfiles() {
+  const querySnapshot = await getDocs(collection(db, "profiles"));
+  return querySnapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
 }
 
 function saveProfiles(data) {

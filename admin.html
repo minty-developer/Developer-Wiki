@@ -141,6 +141,42 @@
   </section>
 </main>
 
+<script type="module">
+import { getFirestore, collection, getDocs, addDoc } 
+  from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+const db = getFirestore(app);
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCf2s8LFTq7RT5QE-Dm29wPiKnfM0NiCC0",
+  authDomain: "developer-wiki-31ea9.firebaseapp.com",
+  projectId: "developer-wiki-31ea9",
+  storageBucket: "developer-wiki-31ea9.firebasestorage.app",
+  messagingSenderId: "305676986631",
+  appId: "1:305676986631:web:893587ce1f950fb5a8bda2",
+  measurementId: "G-FXD6WJG1VZ"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
+
+onAuthStateChanged(auth, (user) => {
+  const adminLogin = document.getElementById("adminLogin");
+  const adminPanel = document.getElementById("adminPanel");
+
+  if (user && user.uid === ADMIN_UID) {
+    adminLogin.style.display = "none";
+    adminPanel.style.display = "block";
+  } else {
+    adminLogin.style.display = "block";
+    adminPanel.style.display = "none";
+  }
+});
+</script>
 <script src="admin.js"></script>
 </body>
 </html>

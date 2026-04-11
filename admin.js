@@ -1,350 +1,186 @@
-const PASSWORD = "20260304Project1";
+// 🔥 Firebase SDK import (맨 위!)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } 
+from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 /* =========================
-   DOM Elements
+   Firebase 설정
 ========================= */
 
-const loginBtn = document.getElementById("loginBtn");
-const passwordInput = document.getElementById("adminPassword");
-const loginError = document.getElementById("loginError");
+const firebaseConfig = {
+  apiKey: "AIzaSy...",
+  authDomain: "developer-wiki-31ea9.firebaseapp.com",
+  projectId: "developer-wiki-31ea9",
+  storageBucket: "developer-wiki-31ea9.firebasestorage.app",
+  messagingSenderId: "305676986631",
+  appId: "1:305676986631:web:893587ce1f950fb5a8bda2"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
+
+/* =========================
+   DOM
+========================= */
 
 const adminLogin = document.getElementById("adminLogin");
 const adminPanel = document.getElementById("adminPanel");
 
 /* =========================
-   Login Check
+   관리자 체크
 ========================= */
 
-function checkLogin() {
-  const isLoggedIn = localStorage.getItem("adminLoggedIn");
+onAuthStateChanged(auth, (user) => {
 
-  if (isLoggedIn === "true") {
-    if (adminLogin) adminLogin.style.display = "none";
-    if (adminPanel) adminPanel.style.display = "block";
+  if (user && user.uid === ADMIN_UID) {
+    adminLogin.style.display = "none";
+    adminPanel.style.display = "block";
+  } else {
+    adminLogin.style.display = "block";
+    adminPanel.style.display = "none";
   }
-}
 
-checkLogin();
+});
 
 /* =========================
-   Login Event
+   Firestore Helper
 ========================= */
 
-if (loginBtn) {
-  loginBtn.onclick = () => {
-    const entered = passwordInput.value;
-
-    if (entered === PASSWORD) {
-      localStorage.setItem("adminLoggedIn", "true");
-
-      adminLogin.style.display = "none";
-      adminPanel.style.display = "block";
-
-    } else {
-      loginError.textContent = "비밀번호가 틀렸습니다.";
-    }
-  };
+async function getProfiles() {
+  const snapshot = await getDocs(collection(db, "profiles"));
+  return snapshot.docs.map(doc => ({
+    docId: doc.id, // 🔥 Firestore 문서 ID
+    ...doc.data()
+  }));
 }
 
 /* =========================
-   Logout
-========================= */
-
-const logoutBtn = document.getElementById("logoutBtn");
-
-if (logoutBtn) {
-  logoutBtn.onclick = () => {
-
-    localStorage.removeItem("adminLoggedIn");
-    localStorage.removeItem("profiles");
-
-    window.location.href = "index.html";
-  };
-}
-
-/* =========================
-   Storage Helper
-========================= */
-
-function getProfiles() {
-  return JSON.parse(localStorage.getItem("profiles")) || [];
-}
-
-function saveProfiles(profiles) {
-  localStorage.setItem("profiles", JSON.stringify(profiles));
-}
-
-/* =========================
-   Add Profile Modal Open
-========================= */
-
-const addBtn = document.getElementById("addProfileBtn");
-
-if (addBtn) {
-  addBtn.onclick = () => {
-    document.getElementById("addModal").style.display = "block";
-  };
-}
-
-/* =========================
-   Add Profile Save
+   Add Profile
 ========================= */
 
 const saveAddBtn = document.getElementById("saveAddBtn");
 
 if (saveAddBtn) {
 
-  saveAddBtn.onclick = () => {
+  saveAddBtn.onclick = async () => {
 
-    const id = document.getElementById("addId").value.trim();
-    const name = document.getElementById("addName").value.trim();
+    const id = document.getElementById("newId").value.trim();
+    const name = document.getElementById("newName").value.trim();
 
-    const activityKo = document.getElementById("addActivityKo").value.trim();
-    const activityEn = document.getElementById("addActivityEn").value.trim();
-    const activityJa = document.getElementById("addActivityJa").value.trim();
+    const activityKo = document.getElementById("newActivityKo").value.trim();
+    const activityEn = document.getElementById("newActivityEn").value.trim();
+    const activityJa = document.getElementById("newActivityJa").value.trim();
 
     const startedYear =
-      parseInt(document.getElementById("addStartedYear").value);
+      parseInt(document.getElementById("newStartedYear").value);
 
     if (!id || !name || !activityKo || !activityEn || !activityJa || !startedYear) {
       alert("필수 값을 입력하세요.");
       return;
     }
 
-    const profiles = getProfiles();
-
-    if (profiles.some(p => p.id === id)) {
-      alert("이미 존재하는 ID입니다.");
-      return;
-    }
-
     const newProfile = {
       id,
-
-      activityName: {
-        ko: activityKo,
-        en: activityEn,
-        ja: activityJa
-      },
-
+      activityName: { ko: activityKo, en: activityEn, ja: activityJa },
       name,
-
       role: {
         ko: document.getElementById("newRoleKo").value,
         en: document.getElementById("newRoleEn").value,
         ja: document.getElementById("newRoleJa").value
       },
-
       tagline: {
         ko: document.getElementById("newTaglineKo").value,
         en: document.getElementById("newTaglineEn").value,
         ja: document.getElementById("newTaglineJa").value
       },
-
       affiliation: document.getElementById("newAffiliation").value,
-
       startedYear,
-
       stack: document.getElementById("newStack").value
         .split(",").map(s => s.trim()).filter(Boolean),
-
       interests: document.getElementById("newInterests").value
         .split(",").map(s => s.trim()).filter(Boolean),
-
       projects: [],
-
       links: {
         github: document.getElementById("newGithub").value,
         blog: document.getElementById("newBlog").value,
         email: document.getElementById("newEmail").value
       },
-
-      image: "assets/images/default.png"
+      image: "images/default-profile.png"
     };
 
-    profiles.push(newProfile);
-    saveProfiles(profiles);
+    await addDoc(collection(db, "profiles"), newProfile);
 
     alert("추가 완료!");
-
     document.getElementById("addModal").style.display = "none";
   };
+
 }
 
 /* =========================
-   Edit Profile Modal Open
+   Edit Load
 ========================= */
 
-document.getElementById("editProfiles").onclick = () => {
-  document.getElementById("editModal").style.display = "block";
-};
-
-/* =========================
-   Load Edit Data
-========================= */
-
-document.getElementById("loadEditBtn").onclick = () => {
+document.getElementById("loadEditBtn").onclick = async () => {
 
   const id = document.getElementById("editId").value.trim();
 
-  const profile = getProfiles().find(p => p.id === id);
+  const profiles = await getProfiles();
+  const profile = profiles.find(p => p.id === id);
 
   if (!profile) {
-    alert("해당 ID가 없습니다.");
+    alert("해당 ID 없음");
     return;
   }
 
-  document.getElementById("editName").value = profile.name;
+  window.currentDocId = profile.docId; // 🔥 저장
 
+  document.getElementById("editName").value = profile.name;
   document.getElementById("editActivityKo").value = profile.activityName.ko;
   document.getElementById("editActivityEn").value = profile.activityName.en;
   document.getElementById("editActivityJa").value = profile.activityName.ja;
-
-  document.getElementById("editRoleKo").value = profile.role.ko;
-  document.getElementById("editRoleEn").value = profile.role.en;
-  document.getElementById("editRoleJa").value = profile.role.ja;
-
-  document.getElementById("editTaglineKo").value = profile.tagline.ko;
-  document.getElementById("editTaglineEn").value = profile.tagline.en;
-  document.getElementById("editTaglineJa").value = profile.tagline.ja;
-
-  document.getElementById("editAffiliation").value = profile.affiliation;
-
-  document.getElementById("editStartedYear").value = profile.startedYear;
-
-  document.getElementById("editStack").value = profile.stack.join(",");
-  document.getElementById("editInterests").value = profile.interests.join(",");
-
-  document.getElementById("editGithub").value = profile.links.github;
-  document.getElementById("editBlog").value = profile.links.blog;
-  document.getElementById("editEmail").value = profile.links.email;
 };
 
 /* =========================
-   Save Edit
+   Edit Save
 ========================= */
 
-document.getElementById("saveEditBtn").onclick = () => {
+document.getElementById("saveEditBtn").onclick = async () => {
 
-  const id = document.getElementById("editId").value.trim();
-
-  const profiles = getProfiles();
-  const index = profiles.findIndex(p => p.id === id);
-
-  if (index === -1) {
-    alert("ID를 확인하세요.");
+  if (!window.currentDocId) {
+    alert("불러오기를 선행하세요");
     return;
   }
 
-  profiles[index].name =
-    document.getElementById("editName").value;
+  const ref = doc(db, "profiles", window.currentDocId);
 
-  profiles[index].activityName = {
-    ko: document.getElementById("editActivityKo").value,
-    en: document.getElementById("editActivityEn").value,
-    ja: document.getElementById("editActivityJa").value
-  };
-
-  profiles[index].role = {
-    ko: document.getElementById("editRoleKo").value,
-    en: document.getElementById("editRoleEn").value,
-    ja: document.getElementById("editRoleJa").value
-  };
-
-  profiles[index].tagline = {
-    ko: document.getElementById("editTaglineKo").value,
-    en: document.getElementById("editTaglineEn").value,
-    ja: document.getElementById("editTaglineJa").value
-  };
-
-  profiles[index].affiliation =
-    document.getElementById("editAffiliation").value;
-
-  profiles[index].startedYear =
-    parseInt(document.getElementById("editStartedYear").value);
-
-  profiles[index].stack =
-    document.getElementById("editStack").value
-      .split(",").map(s => s.trim()).filter(Boolean);
-
-  profiles[index].interests =
-    document.getElementById("editInterests").value
-      .split(",").map(s => s.trim()).filter(Boolean);
-
-  profiles[index].links = {
-    github: document.getElementById("editGithub").value,
-    blog: document.getElementById("editBlog").value,
-    email: document.getElementById("editEmail").value
-  };
-
-  saveProfiles(profiles);
+  await updateDoc(ref, {
+    name: document.getElementById("editName").value
+  });
 
   alert("수정 완료!");
-  document.getElementById("editModal").style.display = "none";
 };
 
 /* =========================
-   Delete Modal Open
+   Delete
 ========================= */
 
-const deleteBtn = document.getElementById("deleteProfile");
+document.getElementById("confirmDeleteBtn").onclick = async () => {
 
-if (deleteBtn) {
+  const id = document.getElementById("deleteId").value.trim();
 
-  deleteBtn.onclick = () => {
-    document.getElementById("deleteModal").style.display = "block";
-  };
+  const profiles = await getProfiles();
+  const profile = profiles.find(p => p.id === id);
 
-}
+  if (!profile) {
+    alert("없음");
+    return;
+  }
 
-/* =========================
-   Delete Confirm Logic
-========================= */
+  await deleteDoc(doc(db, "profiles", profile.docId));
 
-const confirmDeleteBtn =
-  document.getElementById("confirmDeleteBtn");
-
-if (confirmDeleteBtn) {
-
-  confirmDeleteBtn.onclick = () => {
-
-    const id = document.getElementById("deleteId").value.trim();
-
-    if (!id) {
-      alert("ID를 입력하세요.");
-      return;
-    }
-
-    let profiles = getProfiles();
-
-    const profile = profiles.find(p => p.id === id);
-
-    if (!profile) {
-      alert("해당 ID가 없습니다.");
-      return;
-    }
-
-    // 🔥 삭제 확인 (2차 안전장치)
-    const confirmMsg = confirm(
-      `${id} 프로필을 정말 삭제하시겠습니까?`
-    );
-
-    if (!confirmMsg) return;
-
-    profiles = profiles.filter(p => p.id !== id);
-
-    saveProfiles(profiles);
-
-    alert("삭제 완료!");
-
-    document.getElementById("deleteModal").style.display = "none";
-  };
-}
-
-/* =========================
-   Page Load
-========================= */
-
-window.onload = () => {
-  checkLogin();
+  alert("삭제 완료!");
 };
