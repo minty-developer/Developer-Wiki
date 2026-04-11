@@ -1,5 +1,10 @@
 import { db } from "./firebase.js";
 
+import {
+  collection,
+  onSnapshot
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "...",
   authDomain: "developer-wiki-31ea9.firebaseapp.com",
