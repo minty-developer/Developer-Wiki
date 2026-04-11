@@ -8,18 +8,9 @@ from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
    Firebase 설정
 ========================= */
 
-const firebaseConfig = {
-  apiKey: "AIzaSy...",
-  authDomain: "developer-wiki-31ea9.firebaseapp.com",
-  projectId: "developer-wiki-31ea9",
-  storageBucket: "developer-wiki-31ea9.firebasestorage.app",
-  messagingSenderId: "305676986631",
-  appId: "1:305676986631:web:893587ce1f950fb5a8bda2"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// 🔥 기존 app 재사용
+const auth = getAuth();
+const db = getFirestore();
 
 const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
 
