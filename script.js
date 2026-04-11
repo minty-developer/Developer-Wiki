@@ -13,7 +13,6 @@ const firebaseConfig = {
   appId: "1:305676986631:web:893587ce1f950fb5a8bda2"
 };
 
-const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const params = new URLSearchParams(window.location.search);
