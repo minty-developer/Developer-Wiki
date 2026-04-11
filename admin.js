@@ -1,5 +1,8 @@
 import { db, auth, storage } from "./firebase.js";
 
+import { onAuthStateChanged } 
+from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+
 /* =========================
    Firebase 재사용
 ========================= */
