@@ -1,3 +1,11 @@
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+const db = getFirestore();
+
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 const currentLang = params.get("lang") || "ko";
@@ -24,9 +32,8 @@ if (homeBtn) {
 ============================= */
 
 async function getProfiles() {
-  const querySnapshot = await getDocs(collection(db, "profiles"));
-  return querySnapshot.docs.map(doc => ({
-    id: doc.id,
+  const snapshot = await getDocs(collection(db, "profiles"));
+  return snapshot.docs.map(doc => ({
     ...doc.data()
   }));
 }
@@ -39,43 +46,20 @@ function saveProfiles(data) {
    Init Cache Load (robust)
 ============================= */
 
-async function loadDevelopers() {
+window.addEventListener("DOMContentLoaded", async () => {
 
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const data = await getProfiles();
 
-  if (stored) {
-    return JSON.parse(stored);
+  const dev = data.find(d => d.id === id);
+
+  if (!dev) {
+    console.error("프로필 없음");
+    return;
   }
 
-  const paths = [
-    "./data/developers.json",
-    "/Developer-Wiki/data/developers.json",
-    "./developers.json",
-    "/Developer-Wiki/developers.json"
-  ];
+  renderProfile(dev);
 
-  for (const p of paths) {
-
-    try {
-
-      const res = await fetch(p);
-
-      if (!res.ok) continue;
-
-      const data = await res.json();
-
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-
-      return data;
-
-    } catch (err) {
-      continue;
-    }
-  }
-
-  console.error("Failed to load developers.json from any known path.");
-  return [];
-}
+});
 
 /* =============================
    Language Button
@@ -141,14 +125,14 @@ function renderProfile(dev) {
   const img = document.getElementById("profile-image");
   setSafeImage(img, dev.image);
 
-  document.getElementById("profile-activity").textContent =
-    dev.activityName[currentLang];
+document.getElementById("profile-activity").textContent =
+  dev.activityName?.[currentLang] || dev.activityName?.ko || "";
 
-  document.getElementById("profile-role").textContent =
-    dev.role[currentLang];
+document.getElementById("profile-role").textContent =
+  dev.role?.[currentLang] || dev.role?.ko || "";
 
-  document.getElementById("profile-tagline").textContent =
-    dev.tagline[currentLang];
+document.getElementById("profile-tagline").textContent =
+  dev.tagline?.[currentLang] || dev.tagline?.ko || "";
 
   /* Basic Info */
 

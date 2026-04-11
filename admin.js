@@ -82,6 +82,13 @@ document.getElementById("saveAddBtn").onclick = async () => {
   const id = document.getElementById("newId").value.trim();
   const name = document.getElementById("newName").value.trim();
 
+  const profiles = await getProfiles();
+
+  if (profiles.some(p => p.id === id)) {
+    alert("이미 존재하는 ID");
+    return;
+  }
+
   if (!id || !name) {
     alert("필수값 입력");
     return;
