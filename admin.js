@@ -1,14 +1,22 @@
-// 🔥 Firebase SDK import (맨 위!)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc } 
-from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import {
+  getAuth,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 /* =========================
-   Firebase 설정
+   Firebase 재사용
 ========================= */
 
-// 🔥 기존 app 재사용
 const auth = getAuth();
 const db = getFirestore();
 
@@ -43,73 +51,90 @@ onAuthStateChanged(auth, (user) => {
 
 async function getProfiles() {
   const snapshot = await getDocs(collection(db, "profiles"));
-  return snapshot.docs.map(doc => ({
-    docId: doc.id, // 🔥 Firestore 문서 ID
-    ...doc.data()
+  return snapshot.docs.map(d => ({
+    docId: d.id,
+    ...d.data()
   }));
 }
+
+/* =========================
+   모달 열기 (이거 핵심 누락됨)
+========================= */
+
+document.getElementById("addProfileBtn").onclick = () => {
+  document.getElementById("addModal").style.display = "block";
+};
+
+document.getElementById("editProfiles").onclick = () => {
+  document.getElementById("editModal").style.display = "block";
+};
+
+document.getElementById("deleteProfile").onclick = () => {
+  document.getElementById("deleteModal").style.display = "block";
+};
 
 /* =========================
    Add Profile
 ========================= */
 
-const saveAddBtn = document.getElementById("saveAddBtn");
+document.getElementById("saveAddBtn").onclick = async () => {
 
-if (saveAddBtn) {
+  const id = document.getElementById("newId").value.trim();
+  const name = document.getElementById("newName").value.trim();
 
-  saveAddBtn.onclick = async () => {
+  if (!id || !name) {
+    alert("필수값 입력");
+    return;
+  }
 
-    const id = document.getElementById("newId").value.trim();
-    const name = document.getElementById("newName").value.trim();
+  const newProfile = {
+    id,
+    name,
 
-    const activityKo = document.getElementById("newActivityKo").value.trim();
-    const activityEn = document.getElementById("newActivityEn").value.trim();
-    const activityJa = document.getElementById("newActivityJa").value.trim();
+    activityName: {
+      ko: document.getElementById("newActivityKo").value,
+      en: document.getElementById("newActivityEn").value,
+      ja: document.getElementById("newActivityJa").value
+    },
 
-    const startedYear =
-      parseInt(document.getElementById("newStartedYear").value);
+    role: {
+      ko: document.getElementById("newRoleKo").value,
+      en: document.getElementById("newRoleEn").value,
+      ja: document.getElementById("newRoleJa").value
+    },
 
-    if (!id || !name || !activityKo || !activityEn || !activityJa || !startedYear) {
-      alert("필수 값을 입력하세요.");
-      return;
-    }
+    tagline: {
+      ko: document.getElementById("newTaglineKo").value,
+      en: document.getElementById("newTaglineEn").value,
+      ja: document.getElementById("newTaglineJa").value
+    },
 
-    const newProfile = {
-      id,
-      activityName: { ko: activityKo, en: activityEn, ja: activityJa },
-      name,
-      role: {
-        ko: document.getElementById("newRoleKo").value,
-        en: document.getElementById("newRoleEn").value,
-        ja: document.getElementById("newRoleJa").value
-      },
-      tagline: {
-        ko: document.getElementById("newTaglineKo").value,
-        en: document.getElementById("newTaglineEn").value,
-        ja: document.getElementById("newTaglineJa").value
-      },
-      affiliation: document.getElementById("newAffiliation").value,
-      startedYear,
-      stack: document.getElementById("newStack").value
-        .split(",").map(s => s.trim()).filter(Boolean),
-      interests: document.getElementById("newInterests").value
-        .split(",").map(s => s.trim()).filter(Boolean),
-      projects: [],
-      links: {
-        github: document.getElementById("newGithub").value,
-        blog: document.getElementById("newBlog").value,
-        email: document.getElementById("newEmail").value
-      },
-      image: "images/default-profile.png"
-    };
+    affiliation: document.getElementById("newAffiliation").value,
 
-    await addDoc(collection(db, "profiles"), newProfile);
+    startedYear: parseInt(document.getElementById("newStartedYear").value),
 
-    alert("추가 완료!");
-    document.getElementById("addModal").style.display = "none";
+    stack: document.getElementById("newStack").value
+      .split(",").map(s => s.trim()).filter(Boolean),
+
+    interests: document.getElementById("newInterests").value
+      .split(",").map(s => s.trim()).filter(Boolean),
+
+    projects: [],
+
+    links: {
+      github: document.getElementById("newGithub").value,
+      blog: document.getElementById("newBlog").value,
+      email: document.getElementById("newEmail").value
+    },
+
+    image: "images/default-profile.png"
   };
 
-}
+  await addDoc(collection(db, "profiles"), newProfile);
+
+  alert("추가 완료");
+  document.getElementById("addModal").style.display = "none";
+};
 
 /* =========================
    Edit Load
@@ -123,36 +148,78 @@ document.getElementById("loadEditBtn").onclick = async () => {
   const profile = profiles.find(p => p.id === id);
 
   if (!profile) {
-    alert("해당 ID 없음");
+    alert("ID 없음");
     return;
   }
 
-  window.currentDocId = profile.docId; // 🔥 저장
+  window.currentDocId = profile.docId;
 
   document.getElementById("editName").value = profile.name;
   document.getElementById("editActivityKo").value = profile.activityName.ko;
   document.getElementById("editActivityEn").value = profile.activityName.en;
   document.getElementById("editActivityJa").value = profile.activityName.ja;
+
+  document.getElementById("editRoleKo").value = profile.role.ko;
+  document.getElementById("editRoleEn").value = profile.role.en;
+  document.getElementById("editRoleJa").value = profile.role.ja;
+
 };
 
 /* =========================
-   Edit Save
+   Edit Save (🔥 전체 수정)
 ========================= */
 
 document.getElementById("saveEditBtn").onclick = async () => {
 
   if (!window.currentDocId) {
-    alert("불러오기를 선행하세요");
+    alert("먼저 불러오기");
     return;
   }
 
   const ref = doc(db, "profiles", window.currentDocId);
 
   await updateDoc(ref, {
-    name: document.getElementById("editName").value
+
+    name: document.getElementById("editName").value,
+
+    activityName: {
+      ko: document.getElementById("editActivityKo").value,
+      en: document.getElementById("editActivityEn").value,
+      ja: document.getElementById("editActivityJa").value
+    },
+
+    role: {
+      ko: document.getElementById("editRoleKo").value,
+      en: document.getElementById("editRoleEn").value,
+      ja: document.getElementById("editRoleJa").value
+    },
+
+    tagline: {
+      ko: document.getElementById("editTaglineKo").value,
+      en: document.getElementById("editTaglineEn").value,
+      ja: document.getElementById("editTaglineJa").value
+    },
+
+    affiliation: document.getElementById("editAffiliation").value,
+
+    startedYear: parseInt(document.getElementById("editStartedYear").value),
+
+    stack: document.getElementById("editStack").value
+      .split(",").map(s => s.trim()).filter(Boolean),
+
+    interests: document.getElementById("editInterests").value
+      .split(",").map(s => s.trim()).filter(Boolean),
+
+    links: {
+      github: document.getElementById("editGithub").value,
+      blog: document.getElementById("editBlog").value,
+      email: document.getElementById("editEmail").value
+    }
+
   });
 
-  alert("수정 완료!");
+  alert("수정 완료");
+  document.getElementById("editModal").style.display = "none";
 };
 
 /* =========================
@@ -173,29 +240,6 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
 
   await deleteDoc(doc(db, "profiles", profile.docId));
 
-  alert("삭제 완료!");
+  alert("삭제 완료");
+  document.getElementById("deleteModal").style.display = "none";
 };
-
-const addBtn = document.getElementById("addProfileBtn");
-
-if (addBtn) {
-  addBtn.onclick = () => {
-    document.getElementById("addModal").style.display = "block";
-  };
-}
-
-const editBtn = document.getElementById("editProfiles");
-
-if (editBtn) {
-  editBtn.onclick = () => {
-    document.getElementById("editModal").style.display = "block";
-  };
-}
-
-const deleteBtn = document.getElementById("deleteProfile");
-
-if (deleteBtn) {
-  deleteBtn.onclick = () => {
-    document.getElementById("deleteModal").style.display = "block";
-  };
-}
