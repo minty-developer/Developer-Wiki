@@ -208,7 +208,7 @@ document.getElementById("editInterests").value = (profile.interests || []).join(
 
 document.getElementById("editGithub").value = profile.links?.github || "";
 document.getElementById("editBlog").value = profile.links?.blog || "";
-document.getElementById("editEmail").value = profile.links?.email || "";
+document.getElementById("editEmail").value = "mailto" + profile.links?.email || "";
 };
 
 /* =========================
