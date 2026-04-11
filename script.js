@@ -166,6 +166,20 @@ function renderCards(data) {
 
 }
 
+/*==============================
+   Log In
+==============================*/
+
+document.getElementById("loginBtn").onclick = () => {
+  signInWithPopup(auth, provider)
+    .then(result => {
+      console.log("로그인 성공", result.user);
+    })
+    .catch(err => {
+      console.error(err);
+    });
+};
+
 /* =============================
    Init
 ============================= */
