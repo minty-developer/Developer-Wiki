@@ -13,6 +13,15 @@ import {
   doc
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
+
+const storage = getStorage();
+
 /* =========================
    Firebase 재사용
 ========================= */
@@ -80,11 +89,16 @@ document.getElementById("deleteProfile").onclick = () => {
 document.getElementById("saveAddBtn").onclick = async () => {
 
   const id = document.getElementById("newId").value.trim();
-  const name = document.getElementById("newName").value.trim();
-
   const profiles = await getProfiles();
+  const file = document.getElementById("newImageFile").files[0];
 
-  if (profiles.some(p => p.id === id)) {
+  let imageUrl = "images/default-profile.png";
+
+  if (file) {
+    imageUrl = await uploadImage(file, id);
+  }
+
+    if (profiles.some(p => p.id === id)) {
     alert("이미 존재하는 ID");
     return;
   }
@@ -96,7 +110,7 @@ document.getElementById("saveAddBtn").onclick = async () => {
 
   const newProfile = {
     id,
-    name,
+    name: document.getElementById("newName").value,
 
     activityName: {
       ko: document.getElementById("newActivityKo").value,
@@ -134,12 +148,12 @@ document.getElementById("saveAddBtn").onclick = async () => {
       email: document.getElementById("newEmail").value
     },
 
-    image: "images/default-profile.png"
+    image: imageUrl
   };
 
   await addDoc(collection(db, "profiles"), newProfile);
 
-  alert("추가 완료");
+  alert("추가 완료!");
   document.getElementById("addModal").style.display = "none";
 };
 
@@ -250,3 +264,33 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
   alert("삭제 완료");
   document.getElementById("deleteModal").style.display = "none";
 };
+
+/*
+Image Preview
+*/
+
+const imageInput = document.getElementById("newImageFile");
+const preview = document.getElementById("previewImage");
+
+imageInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+
+  if (!file) return;
+
+  preview.src = URL.createObjectURL(file);
+});
+
+/*
+Image Upload
+*/
+
+async function uploadImage(file, id) {
+
+  const imageRef = ref(storage, `profiles/${id}/${file.name}`);
+
+  await uploadBytes(imageRef, file);
+
+  const url = await getDownloadURL(imageRef);
+
+  return url;
+}
