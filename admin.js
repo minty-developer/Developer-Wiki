@@ -184,3 +184,27 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
 
   alert("삭제 완료!");
 };
+
+const addBtn = document.getElementById("addProfileBtn");
+
+if (addBtn) {
+  addBtn.onclick = () => {
+    document.getElementById("addModal").style.display = "block";
+  };
+}
+
+const editBtn = document.getElementById("editProfiles");
+
+if (editBtn) {
+  editBtn.onclick = () => {
+    document.getElementById("editModal").style.display = "block";
+  };
+}
+
+const deleteBtn = document.getElementById("deleteProfile");
+
+if (deleteBtn) {
+  deleteBtn.onclick = () => {
+    document.getElementById("deleteModal").style.display = "block";
+  };
+}
