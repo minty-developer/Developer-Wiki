@@ -91,6 +91,7 @@ document.getElementById("saveAddBtn").onclick = async () => {
   const id = document.getElementById("newId").value.trim();
   const profiles = await getProfiles();
   const file = document.getElementById("newImageFile").files[0];
+  const name = document.getElementById("newName").value;
 
   let imageUrl = "images/default-profile.png";
 
@@ -104,7 +105,7 @@ document.getElementById("saveAddBtn").onclick = async () => {
   }
 
   if (!id || !name) {
-    alert("필수값 입력");
+    alert("필수값 누락");
     return;
   }
 
@@ -175,15 +176,19 @@ document.getElementById("loadEditBtn").onclick = async () => {
 
   window.currentDocId = profile.docId;
 
-  document.getElementById("editName").value = profile.name;
-  document.getElementById("editActivityKo").value = profile.activityName.ko;
-  document.getElementById("editActivityEn").value = profile.activityName.en;
-  document.getElementById("editActivityJa").value = profile.activityName.ja;
+document.getElementById("editTaglineKo").value = profile.tagline?.ko || "";
+document.getElementById("editTaglineEn").value = profile.tagline?.en || "";
+document.getElementById("editTaglineJa").value = profile.tagline?.ja || "";
 
-  document.getElementById("editRoleKo").value = profile.role.ko;
-  document.getElementById("editRoleEn").value = profile.role.en;
-  document.getElementById("editRoleJa").value = profile.role.ja;
+document.getElementById("editAffiliation").value = profile.affiliation || "";
+document.getElementById("editStartedYear").value = profile.startedYear || "";
 
+document.getElementById("editStack").value = (profile.stack || []).join(", ");
+document.getElementById("editInterests").value = (profile.interests || []).join(", ");
+
+document.getElementById("editGithub").value = profile.links?.github || "";
+document.getElementById("editBlog").value = profile.links?.blog || "";
+document.getElementById("editEmail").value = profile.links?.email || "";
 };
 
 /* =========================

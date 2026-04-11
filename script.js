@@ -92,8 +92,6 @@ import {
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-const db = getFirestore();
-
 /*
    Card Render
   */
