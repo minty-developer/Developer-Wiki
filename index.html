@@ -21,7 +21,9 @@
                 <button data-lang="ja">日本語</button>
             </div>
             <a href="https://discord.gg/jHVxvrdc94"><button class="discord-btn">discord</button></a>
-            <button id="loginBtn">Google Login</button>
+            <button id="loginBtn">
+                Google Login
+            </button>
             <button class="admin-btn" onclick="location.href='admin.html'">
                 Admin
             </button>
@@ -62,6 +64,17 @@
             // Initialize Firebase
             const app = initializeApp(firebaseConfig);
             const analytics = getAnalytics(app);
+
+            
+            document.getElementById("loginBtn").onclick = () => {
+                signInWithPopup(auth, provider)
+                    .then(result => {
+                    console.log("로그인 성공", result.user);
+                    })
+                    .catch(err => {
+                    console.error(err);
+                    });
+            };
         </script>
         <script src="script.js"></script>
     </body>
