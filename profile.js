@@ -1,3 +1,5 @@
+import { db } from "./firebase.js";
+
 import {
   getFirestore,
   collection,
@@ -218,9 +220,9 @@ document.getElementById("profile-tagline").textContent =
    Update + Render (Future Use)
 ============================= */
 
-function updateAndRenderProfile(id, newData) {
+async function updateAndRenderProfile(id, newData) {
 
-  const profiles = getProfiles();
+  const profiles = await getProfiles();
 
   const updated = profiles.map(p =>
     p.id === id ? { ...p, ...newData } : p
@@ -233,17 +235,3 @@ function updateAndRenderProfile(id, newData) {
   renderProfile(dev);
 
 }
-
-/* =============================
-   Page Load
-============================= */
-
-loadDevelopers().then(data => {
-
-  const dev = data.find(d => d.id === id);
-
-  if (!dev) return;
-
-  renderProfile(dev);
-
-});
