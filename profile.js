@@ -1,237 +1,43 @@
 import { db } from "./firebase.js";
-
-import {
-  getFirestore,
-  collection,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 const currentLang = params.get("lang") || "ko";
 
-document.documentElement.lang = currentLang;
-
-const STORAGE_KEY = "profiles";
-const DEFAULT_IMAGE = "images/default-profile.png";
-
-/* =============================
-    Home Button
-============================= */
-
-const homeBtn = document.getElementById("homeBtn");
-
-if (homeBtn) {
-  homeBtn.onclick = () => {
-    window.location.href = "index.html";
-  };
-}
-
-/* =============================
-   Storage Helper
-============================= */
-
 async function getProfiles() {
   const snapshot = await getDocs(collection(db, "profiles"));
-  return snapshot.docs.map(doc => ({
-    ...doc.data()
-  }));
+  return snapshot.docs.map(doc => doc.data());
 }
-
-function saveProfiles(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-/* =============================
-   Init Cache Load (robust)
-============================= */
 
 window.addEventListener("DOMContentLoaded", async () => {
-
   const data = await getProfiles();
-
   const dev = data.find(d => d.id === id);
-
-  if (!dev) {
-    console.error("프로필 없음");
-    return;
-  }
-
-  renderProfile(dev);
-
-});
-
-/* =============================
-   Language Button
-============================= */
-
-document.querySelectorAll("[data-lang]").forEach(btn => {
-
-  if (btn.dataset.lang === currentLang) {
-    btn.classList.add("active");
-  }
-
-  btn.addEventListener("click", () => {
-    window.location.href =
-      `profile.html?id=${id}&lang=${btn.dataset.lang}`;
-  });
-
-});
-
-/* =============================
-   Render Helpers
-============================= */
-
-function clearBoxes() {
-
-  document.getElementById("profile-stack").innerHTML = "";
-  document.getElementById("profile-interests").innerHTML = "";
-  document.getElementById("profile-projects").innerHTML = "";
-  document.getElementById("profile-links").innerHTML = "";
-
-}
-
-/* =============================
-   Image Safe Loader
-============================= */
-
-function setSafeImage(imgElement, src) {
-
-  if (!src) {
-    imgElement.src = DEFAULT_IMAGE;
-    return;
-  }
-
-  imgElement.src = src;
-
-  imgElement.onerror = () => {
-    imgElement.src = DEFAULT_IMAGE;
-  };
-
-}
-
-/* =============================
-   Profile Renderer
-============================= */
-
-function renderProfile(dev) {
 
   if (!dev) return;
 
-  clearBoxes();
+  renderProfile(dev);
+});
 
-  /* Top */
+const projectBox = document.getElementById("profile-projects");
 
-  const img = document.getElementById("profile-image");
-  setSafeImage(img, dev.image);
-
-document.getElementById("profile-activity").textContent =
-  dev.activityName?.[currentLang] || dev.activityName?.ko || "";
-
-document.getElementById("profile-role").textContent =
-  dev.role?.[currentLang] || dev.role?.ko || "";
-
-document.getElementById("profile-tagline").textContent =
-  dev.tagline?.[currentLang] || dev.tagline?.ko || "";
-
-  /* Basic Info */
-
-  document.getElementById("profile-name").textContent = dev.name;
-
-  document.getElementById("profile-affiliation").textContent =
-    dev.affiliation;
-
-  document.getElementById("profile-started").textContent =
-    dev.startedYear;
-
-  /* Stack */
-
-  const stackBox = document.getElementById("profile-stack");
-
-  dev.stack.forEach(s => {
-
-    const span = document.createElement("span");
-    span.textContent = s;
-    stackBox.appendChild(span);
-
-  });
-
-  /* Interests */
-
-  const interestBox = document.getElementById("profile-interests");
-
-  dev.interests.forEach(i => {
-
-    const span = document.createElement("span");
-    span.textContent = i;
-    interestBox.appendChild(span);
-
-  });
-
-  /* Projects */
-
-  const projectBox = document.getElementById("profile-projects");
-
+if (Array.isArray(dev.projects)) {
   dev.projects.forEach(p => {
 
     const div = document.createElement("div");
-    div.className = "project-item";
 
     const title = document.createElement("h4");
     title.textContent = p.name;
 
     const desc = document.createElement("p");
-    desc.textContent = p.description[currentLang];
-
-    const link = document.createElement("a");
-    link.href = p.link;
-    link.target = "_blank";
-    link.textContent = "View Project";
+    desc.textContent =
+      typeof p.description === "object"
+        ? p.description[currentLang] || p.description.ko
+        : p.description || "";
 
     div.appendChild(title);
     div.appendChild(desc);
-    div.appendChild(link);
 
     projectBox.appendChild(div);
-
   });
-
-  /* External Links */
-
-  const linkBox = document.getElementById("profile-links");
-
-  Object.entries(dev.links).forEach(([key, value]) => {
-
-    if (!value) return;
-
-    const a = document.createElement("a");
-
-    a.href = value;
-    a.target = "_blank";
-    a.textContent = key.toUpperCase();
-
-    linkBox.appendChild(a);
-
-  });
-
-}
-
-/* =============================
-   Update + Render (Future Use)
-============================= */
-
-async function updateAndRenderProfile(id, newData) {
-
-  const profiles = await getProfiles();
-
-  const updated = profiles.map(p =>
-    p.id === id ? { ...p, ...newData } : p
-  );
-
-  saveProfiles(updated);
-
-  const dev = updated.find(d => d.id === id);
-
-  renderProfile(dev);
-
 }

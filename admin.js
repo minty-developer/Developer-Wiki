@@ -13,6 +13,15 @@ import {
 import { onAuthStateChanged } 
 from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
+const editImageInput = document.getElementById("editImageFile");
+const editPreview = document.getElementById("editPreviewImage");
+
+editImageInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  editPreview.src = URL.createObjectURL(file);
+});
+
 /* =========================
    Firebase 재사용
 ========================= */
@@ -96,6 +105,14 @@ document.getElementById("saveAddBtn").onclick = async () => {
     alert("필수값 누락");
     return;
   }
+  let projects = [];
+
+  try {
+    projects = JSON.parse(document.getElementById("newProjects").value || "[]");
+  } catch {
+    alert("프로젝트 JSON 형식 오류");
+    return;
+  }
 
   const newProfile = {
     id,
@@ -129,7 +146,7 @@ document.getElementById("saveAddBtn").onclick = async () => {
     interests: document.getElementById("newInterests").value
       .split(",").map(s => s.trim()).filter(Boolean),
 
-    projects: [],
+    projects,
 
     links: {
       github: document.getElementById("newGithub").value,
@@ -161,6 +178,9 @@ document.getElementById("loadEditBtn").onclick = async () => {
     alert("ID 없음");
     return;
   }
+
+  document.getElementById("editProjects").value =
+  JSON.stringify(profile.projects || [], null, 2);
 
   window.currentDocId = profile.docId;
 
@@ -202,6 +222,15 @@ document.getElementById("saveEditBtn").onclick = async () => {
     return;
   }
 
+  let projects = [];
+
+  try {
+    projects = JSON.parse(document.getElementById("editProjects").value || "[]");
+  } catch {
+    alert("프로젝트 JSON 오류");
+    return;
+  }
+
   const ref = doc(db, "profiles", window.currentDocId);
 
   await updateDoc(ref, {
@@ -235,6 +264,8 @@ document.getElementById("saveEditBtn").onclick = async () => {
 
     interests: document.getElementById("editInterests").value
       .split(",").map(s => s.trim()).filter(Boolean),
+
+    projects,
 
     links: {
       github: document.getElementById("editGithub").value,
