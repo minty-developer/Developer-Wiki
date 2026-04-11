@@ -4,8 +4,6 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-const db = getFirestore();
-
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
 const currentLang = params.get("lang") || "ko";
