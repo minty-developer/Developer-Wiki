@@ -1,332 +1,249 @@
-import { db, auth, storage } from "./firebase.js";
-
-
+import { auth, db, storage } from "./firebase.js";
 import {
-  collection,
-  getDocs,
   addDoc,
-  updateDoc,
+  collection,
   deleteDoc,
-  doc
+  doc,
+  getDocs,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-
-import { onAuthStateChanged } 
-from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-
-const editImageInput = document.getElementById("editImageFile");
-const editPreview = document.getElementById("editPreviewImage");
-
-editImageInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  editPreview.src = URL.createObjectURL(file);
-});
-
-/* =========================
-   Firebase 재사용
-========================= */
+import {
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
 
 const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
+const DEFAULT_IMAGE = "images/default-profile.png";
 
-/* =========================
-   DOM
-========================= */
+let currentDocId = "";
 
 const adminLogin = document.getElementById("adminLogin");
 const adminPanel = document.getElementById("adminPanel");
 
-/* =========================
-   관리자 체크
-========================= */
+function getValue(id) {
+  return document.getElementById(id)?.value.trim() || "";
+}
 
-onAuthStateChanged(auth, (user) => {
+function getCommaList(id) {
+  return getValue(id)
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
 
-  if (user && user.uid === ADMIN_UID) {
-    adminLogin.style.display = "none";
-    adminPanel.style.display = "block";
-  } else {
-    adminLogin.style.display = "block";
-    adminPanel.style.display = "none";
+function parseProjects(id) {
+  try {
+    return JSON.parse(getValue(id) || "[]");
+  } catch {
+    alert("Projects must be valid JSON.");
+    return null;
   }
+}
 
-});
-
-/* =========================
-   Firestore Helper
-========================= */
+function toMailLink(value) {
+  if (!value) return "";
+  return value.startsWith("mailto:") ? value : `mailto:${value}`;
+}
 
 async function getProfiles() {
   const snapshot = await getDocs(collection(db, "profiles"));
-  return snapshot.docs.map(d => ({
-    docId: d.id,
-    ...d.data()
+  return snapshot.docs.map((profileDoc) => ({
+    docId: profileDoc.id,
+    ...profileDoc.data()
   }));
 }
 
-/* =========================
-   모달 열기 (이거 핵심 누락됨)
-========================= */
+async function uploadImage(file, id) {
+  const imageRef = ref(storage, `profiles/${id}/${file.name}`);
+  await uploadBytes(imageRef, file);
+  return getDownloadURL(imageRef);
+}
 
-document.getElementById("addProfileBtn").onclick = () => {
-  document.getElementById("addModal").style.display = "block";
-};
+function setModalVisible(id, isVisible) {
+  const modal = document.getElementById(id);
+  if (modal) modal.style.display = isVisible ? "block" : "none";
+}
 
-document.getElementById("editProfiles").onclick = () => {
-  document.getElementById("editModal").style.display = "block";
-};
-
-document.getElementById("deleteProfile").onclick = () => {
-  document.getElementById("deleteModal").style.display = "block";
-};
-
-/* =========================
-   Add Profile
-========================= */
-
-document.getElementById("saveAddBtn").onclick = async () => {
-
-  const id = document.getElementById("newId").value.trim();
-  const profiles = await getProfiles();
-  const file = document.getElementById("newImageFile").files[0];
-  const name = document.getElementById("newName").value;
-
-  let imageUrl = "images/default-profile.png";
-
-  if (file) {
-    imageUrl = await uploadImage(file, id);
-  }
-
-    if (profiles.some(p => p.id === id)) {
-    alert("이미 존재하는 ID");
-    return;
-  }
-
-  if (!id || !name) {
-    alert("필수값 누락");
-    return;
-  }
-  let projects = [];
-
-  try {
-    projects = JSON.parse(document.getElementById("newProjects").value || "[]");
-  } catch {
-    alert("프로젝트 JSON 형식 오류");
-    return;
-  }
-
-  const newProfile = {
-    id,
-    name: document.getElementById("newName").value,
-
-    activityName: {
-      ko: document.getElementById("newActivityKo").value,
-      en: document.getElementById("newActivityEn").value,
-      ja: document.getElementById("newActivityJa").value
-    },
-
-    role: {
-      ko: document.getElementById("newRoleKo").value,
-      en: document.getElementById("newRoleEn").value,
-      ja: document.getElementById("newRoleJa").value
-    },
-
-    tagline: {
-      ko: document.getElementById("newTaglineKo").value,
-      en: document.getElementById("newTaglineEn").value,
-      ja: document.getElementById("newTaglineJa").value
-    },
-
-    affiliation: document.getElementById("newAffiliation").value,
-
-    startedYear: parseInt(document.getElementById("newStartedYear").value),
-
-    stack: document.getElementById("newStack").value
-      .split(",").map(s => s.trim()).filter(Boolean),
-
-    interests: document.getElementById("newInterests").value
-      .split(",").map(s => s.trim()).filter(Boolean),
-
-    projects,
-
-    links: {
-      github: document.getElementById("newGithub").value,
-      blog: document.getElementById("newBlog").value,
-      email: "mailto:" + document.getElementById("newEmail").value
-    },
-
-    image: imageUrl
-  };
-
-  await addDoc(collection(db, "profiles"), newProfile);
-
-  alert("추가 완료!");
-  document.getElementById("addModal").style.display = "none";
-};
-
-/* =========================
-   Edit Load
-========================= */
-
-document.getElementById("loadEditBtn").onclick = async () => {
-
-  const id = document.getElementById("editId").value.trim();
-
-  const profiles = await getProfiles();
-  const profile = profiles.find(p => p.id === id);
-
-  if (!profile) {
-    alert("ID 없음");
-    return;
-  }
-
-  document.getElementById("editProjects").value =
-  JSON.stringify(profile.projects || [], null, 2);
-
-  window.currentDocId = profile.docId;
-
-document.getElementById("editName").value = profile.name || "";
-
-document.getElementById("editActivityKo").value = profile.activityName?.ko || "";
-document.getElementById("editActivityEn").value = profile.activityName?.en || "";
-document.getElementById("editActivityJa").value = profile.activityName?.ja || "";
-
-document.getElementById("editRoleKo").value = profile.role?.ko || "";
-document.getElementById("editRoleEn").value = profile.role?.en || "";
-document.getElementById("editRoleJa").value = profile.role?.ja || "";
-
-/* 🔥 추가된 부분 */
-
-document.getElementById("editTaglineKo").value = profile.tagline?.ko || "";
-document.getElementById("editTaglineEn").value = profile.tagline?.en || "";
-document.getElementById("editTaglineJa").value = profile.tagline?.ja || "";
-
-document.getElementById("editAffiliation").value = profile.affiliation || "";
-document.getElementById("editStartedYear").value = profile.startedYear || "";
-
-document.getElementById("editStack").value = (profile.stack || []).join(", ");
-document.getElementById("editInterests").value = (profile.interests || []).join(", ");
-
-document.getElementById("editGithub").value = profile.links?.github || "";
-document.getElementById("editBlog").value = profile.links?.blog || "";
-document.getElementById("editEmail").value = "mailto" + profile.links?.email || "";
-};
-
-/* =========================
-   Edit Save (🔥 전체 수정)
-========================= */
-
-document.getElementById("saveEditBtn").onclick = async () => {
-
-  if (!window.currentDocId) {
-    alert("먼저 불러오기");
-    return;
-  }
-
-  let projects = [];
-
-  try {
-    projects = JSON.parse(document.getElementById("editProjects").value || "[]");
-  } catch {
-    alert("프로젝트 JSON 오류");
-    return;
-  }
-
-  const ref = doc(db, "profiles", window.currentDocId);
-
-  await updateDoc(ref, {
-
-    name: document.getElementById("editName").value,
-
-    activityName: {
-      ko: document.getElementById("editActivityKo").value,
-      en: document.getElementById("editActivityEn").value,
-      ja: document.getElementById("editActivityJa").value
-    },
-
-    role: {
-      ko: document.getElementById("editRoleKo").value,
-      en: document.getElementById("editRoleEn").value,
-      ja: document.getElementById("editRoleJa").value
-    },
-
-    tagline: {
-      ko: document.getElementById("editTaglineKo").value,
-      en: document.getElementById("editTaglineEn").value,
-      ja: document.getElementById("editTaglineJa").value
-    },
-
-    affiliation: document.getElementById("editAffiliation").value,
-
-    startedYear: parseInt(document.getElementById("editStartedYear").value),
-
-    stack: document.getElementById("editStack").value
-      .split(",").map(s => s.trim()).filter(Boolean),
-
-    interests: document.getElementById("editInterests").value
-      .split(",").map(s => s.trim()).filter(Boolean),
-
-    projects,
-
-    links: {
-      github: document.getElementById("editGithub").value,
-      blog: document.getElementById("editBlog").value,
-      email: document.getElementById("editEmail").value
-    }
-
+function bindModalButtons() {
+  document.getElementById("addProfileBtn")?.addEventListener("click", () => {
+    setModalVisible("addModal", true);
   });
 
-  alert("수정 완료");
-  document.getElementById("editModal").style.display = "none";
-};
+  document.getElementById("editProfiles")?.addEventListener("click", () => {
+    setModalVisible("editModal", true);
+  });
 
-/* =========================
-   Delete
-========================= */
+  document.getElementById("deleteProfile")?.addEventListener("click", () => {
+    setModalVisible("deleteModal", true);
+  });
 
-document.getElementById("confirmDeleteBtn").onclick = async () => {
+  document.querySelectorAll("[data-close-modal]").forEach((button) => {
+    button.addEventListener("click", () => setModalVisible(button.dataset.closeModal, false));
+  });
+}
 
-  const id = document.getElementById("deleteId").value.trim();
+function bindImagePreview(inputId, imageId) {
+  const input = document.getElementById(inputId);
+  const preview = document.getElementById(imageId);
+  if (!input || !preview) return;
+
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    if (file) preview.src = URL.createObjectURL(file);
+  });
+}
+
+function buildProfile(prefix, imageUrl) {
+  return {
+    name: getValue(`${prefix}Name`),
+    activityName: {
+      ko: getValue(`${prefix}ActivityKo`),
+      en: getValue(`${prefix}ActivityEn`),
+      ja: getValue(`${prefix}ActivityJa`)
+    },
+    role: {
+      ko: getValue(`${prefix}RoleKo`),
+      en: getValue(`${prefix}RoleEn`),
+      ja: getValue(`${prefix}RoleJa`)
+    },
+    tagline: {
+      ko: getValue(`${prefix}TaglineKo`),
+      en: getValue(`${prefix}TaglineEn`),
+      ja: getValue(`${prefix}TaglineJa`)
+    },
+    affiliation: getValue(`${prefix}Affiliation`),
+    startedYear: Number.parseInt(getValue(`${prefix}StartedYear`), 10) || null,
+    stack: getCommaList(`${prefix}Stack`),
+    interests: getCommaList(`${prefix}Interests`),
+    projects: parseProjects(`${prefix}Projects`),
+    links: {
+      github: getValue(`${prefix}Github`),
+      blog: getValue(`${prefix}Blog`),
+      email: toMailLink(getValue(`${prefix}Email`))
+    },
+    ...(imageUrl ? { image: imageUrl } : {})
+  };
+}
+
+async function saveNewProfile() {
+  const id = getValue("newId");
+  const name = getValue("newName");
+
+  if (!id || !name) {
+    alert("ID and name are required.");
+    return;
+  }
 
   const profiles = await getProfiles();
-  const profile = profiles.find(p => p.id === id);
+  if (profiles.some((profile) => profile.id === id)) {
+    alert("This ID already exists.");
+    return;
+  }
+
+  const file = document.getElementById("newImageFile")?.files[0];
+  const imageUrl = file ? await uploadImage(file, id) : DEFAULT_IMAGE;
+  const newProfile = {
+    id,
+    ...buildProfile("new", imageUrl)
+  };
+
+  if (!newProfile.projects) return;
+
+  await addDoc(collection(db, "profiles"), newProfile);
+  alert("Profile added.");
+  setModalVisible("addModal", false);
+}
+
+async function loadProfileForEdit() {
+  const id = getValue("editId");
+  const profiles = await getProfiles();
+  const profile = profiles.find((item) => item.id === id);
 
   if (!profile) {
-    alert("없음");
+    alert("Profile not found.");
+    return;
+  }
+
+  currentDocId = profile.docId;
+
+  document.getElementById("editName").value = profile.name || "";
+  document.getElementById("editActivityKo").value = profile.activityName?.ko || "";
+  document.getElementById("editActivityEn").value = profile.activityName?.en || "";
+  document.getElementById("editActivityJa").value = profile.activityName?.ja || "";
+  document.getElementById("editRoleKo").value = profile.role?.ko || "";
+  document.getElementById("editRoleEn").value = profile.role?.en || "";
+  document.getElementById("editRoleJa").value = profile.role?.ja || "";
+  document.getElementById("editTaglineKo").value = profile.tagline?.ko || "";
+  document.getElementById("editTaglineEn").value = profile.tagline?.en || "";
+  document.getElementById("editTaglineJa").value = profile.tagline?.ja || "";
+  document.getElementById("editAffiliation").value = profile.affiliation || "";
+  document.getElementById("editStartedYear").value = profile.startedYear || "";
+  document.getElementById("editStack").value = (profile.stack || []).join(", ");
+  document.getElementById("editInterests").value = (profile.interests || []).join(", ");
+  document.getElementById("editGithub").value = profile.links?.github || "";
+  document.getElementById("editBlog").value = profile.links?.blog || "";
+  document.getElementById("editEmail").value = (profile.links?.email || "").replace(/^mailto:/, "");
+  document.getElementById("editProjects").value = JSON.stringify(profile.projects || [], null, 2);
+}
+
+async function saveEditedProfile() {
+  if (!currentDocId) {
+    alert("Load a profile first.");
+    return;
+  }
+
+  const file = document.getElementById("editImageFile")?.files[0];
+  const id = getValue("editId");
+  const imageUrl = file ? await uploadImage(file, id) : "";
+  const profile = buildProfile("edit", imageUrl);
+
+  if (!profile.projects) return;
+
+  await updateDoc(doc(db, "profiles", currentDocId), profile);
+  alert("Profile updated.");
+  setModalVisible("editModal", false);
+}
+
+async function deleteProfile() {
+  const id = getValue("deleteId");
+  const profiles = await getProfiles();
+  const profile = profiles.find((item) => item.id === id);
+
+  if (!profile) {
+    alert("Profile not found.");
     return;
   }
 
   await deleteDoc(doc(db, "profiles", profile.docId));
-
-  alert("삭제 완료");
-  document.getElementById("deleteModal").style.display = "none";
-};
-
-/*
-Image Preview
-*/
-
-const imageInput = document.getElementById("newImageFile");
-const preview = document.getElementById("previewImage");
-
-imageInput.addEventListener("change", (e) => {
-  const file = e.target.files[0];
-
-  if (!file) return;
-
-  preview.src = URL.createObjectURL(file);
-});
-
-/*
-Image Upload
-*/
-
-async function uploadImage(file, id) {
-
-  const imageRef = ref(storage, `profiles/${id}/${file.name}`);
-
-  await uploadBytes(imageRef, file);
-
-  const url = await getDownloadURL(imageRef);
-
-  return url;
+  alert("Profile deleted.");
+  setModalVisible("deleteModal", false);
 }
+
+function initAdminAuth() {
+  onAuthStateChanged(auth, (user) => {
+    const isAdmin = user?.uid === ADMIN_UID;
+    if (adminLogin) adminLogin.style.display = isAdmin ? "none" : "block";
+    if (adminPanel) adminPanel.style.display = isAdmin ? "block" : "none";
+  });
+
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    signOut(auth);
+  });
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  initAdminAuth();
+  bindModalButtons();
+  bindImagePreview("newImageFile", "previewImage");
+  bindImagePreview("editImageFile", "editPreviewImage");
+
+  document.getElementById("saveAddBtn")?.addEventListener("click", saveNewProfile);
+  document.getElementById("loadEditBtn")?.addEventListener("click", loadProfileForEdit);
+  document.getElementById("saveEditBtn")?.addEventListener("click", saveEditedProfile);
+  document.getElementById("confirmDeleteBtn")?.addEventListener("click", deleteProfile);
+});

@@ -1,66 +1,100 @@
-import { db } from "./firebase.js";
-
+import { auth, db } from "./firebase.js";
 import {
   collection,
   onSnapshot
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+import {
+  GoogleAuthProvider,
+  onAuthStateChanged,
+  signInWithPopup,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+
+const DEFAULT_IMAGE = "images/default-profile.png";
+const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
+const SUPPORTED_LANGUAGES = ["ko", "en", "ja"];
 
 const params = new URLSearchParams(window.location.search);
-const currentLang = params.get("lang") || "ko";
+const requestedLang = params.get("lang") || "ko";
+const currentLang = SUPPORTED_LANGUAGES.includes(requestedLang) ? requestedLang : "ko";
 
 let developersData = [];
 
 document.documentElement.lang = currentLang;
 
-const DEFAULT_IMAGE = "images/default-profile.png";
-
-/* =============================
-   Language Button
-============================= */
-
-document.querySelectorAll("[data-lang]").forEach(btn => {
-
-  if (btn.dataset.lang === currentLang) {
-    btn.classList.add("active");
-  }
-
-  btn.addEventListener("click", () => {
-    window.location.href = `index.html?lang=${btn.dataset.lang}`;
-  });
-
-});
-
-/* =============================
-   Safe Image Loader
-============================= */
+function getLocalizedValue(value, fallback = "") {
+  if (!value) return fallback;
+  if (typeof value === "string") return value;
+  return value[currentLang] || value.ko || fallback;
+}
 
 function setSafeImage(imgElement, src) {
-
-  if (!src) {
-    imgElement.src = DEFAULT_IMAGE;
-    return;
-  }
-
-  imgElement.src = src;
-
+  imgElement.src = src || DEFAULT_IMAGE;
   imgElement.onerror = () => {
     imgElement.src = DEFAULT_IMAGE;
   };
-
 }
 
-/* =============================
-   Search System
-============================= */
+function initLanguageButtons() {
+  document.querySelectorAll("[data-lang]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.lang === currentLang);
+    button.addEventListener("click", () => {
+      window.location.href = `index.html?lang=${button.dataset.lang}`;
+    });
+  });
+}
+
+function renderCards(data) {
+  const container = document.querySelector(".card-container");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (!data.length) {
+    container.innerHTML = "<p>No profiles found.</p>";
+    return;
+  }
+
+  data.forEach((developer) => {
+    const card = document.createElement("button");
+    card.className = "card";
+    card.type = "button";
+    card.addEventListener("click", () => {
+      window.location.href = `profile.html?id=${developer.id}&lang=${currentLang}`;
+    });
+
+    const image = document.createElement("img");
+    image.className = "card-image";
+    image.alt = getLocalizedValue(developer.activityName, developer.name || "Profile image");
+    setSafeImage(image, developer.image);
+
+    const name = document.createElement("div");
+    name.className = "card-name";
+    name.textContent = getLocalizedValue(developer.activityName, developer.name || "Unnamed");
+
+    const role = document.createElement("div");
+    role.className = "card-bio";
+    role.textContent = getLocalizedValue(developer.role);
+
+    const stackBox = document.createElement("div");
+    stackBox.className = "card-stack";
+
+    (developer.stack || []).forEach((stack) => {
+      const item = document.createElement("span");
+      item.textContent = stack;
+      stackBox.appendChild(item);
+    });
+
+    card.append(image, name, role, stackBox);
+    container.appendChild(card);
+  });
+}
 
 function initSearch() {
-
   const searchInput = document.getElementById("searchInput");
-
   if (!searchInput) return;
 
   searchInput.addEventListener("input", () => {
-
     const keyword = searchInput.value.toLowerCase().trim();
 
     if (!keyword) {
@@ -68,135 +102,71 @@ function initSearch() {
       return;
     }
 
-    const filtered = developersData.filter(dev => {
+    const filtered = developersData.filter((developer) => {
+      const searchableText = [
+        developer.id,
+        developer.name,
+        developer.activityName?.ko,
+        developer.activityName?.en,
+        developer.activityName?.ja,
+        developer.role?.ko,
+        developer.role?.en,
+        developer.role?.ja,
+        ...(developer.stack || [])
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
 
-      return (
-
-        dev.id?.toLowerCase().includes(keyword) ||
-        dev.name?.toLowerCase().includes(keyword) ||
-
-        dev.activityName?.ko?.toLowerCase().includes(keyword) ||
-        dev.activityName?.en?.toLowerCase().includes(keyword) ||
-        dev.activityName?.ja?.toLowerCase().includes(keyword)
-
-      );
-
+      return searchableText.includes(keyword);
     });
 
     renderCards(filtered);
-
   });
-
 }
 
-/* =============================
-   Load Developers
-============================= */
+function initAuthButton() {
+  const loginButton = document.getElementById("loginBtn");
+  const adminButton = document.querySelector(".admin-btn");
+  if (!loginButton) return;
 
+  const provider = new GoogleAuthProvider();
 
-/*
-   Card Render
-  */
-
-function renderCards(data) {
-
-  const container = document.querySelector(".card-container");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  if (!data || data.length === 0) {
-    container.innerHTML = "<p>데이터 없음</p>";
-    return;
-  }
-
-  data.forEach(dev => {
-
-    const card = document.createElement("div");
-    card.className = "card";
-
-    card.onclick = () => {
-      window.location.href =
-        `profile.html?id=${dev.id}&lang=${currentLang}`;
-    };
-
-    /* Image */
-
-    const img = document.createElement("img");
-    img.className = "card-image";
-
-    setSafeImage(img, dev.image);
-
-    /* Name (🔥 안전 처리) */
-
-    const name = document.createElement("div");
-    name.className = "card-name";
-    name.textContent =
-      dev.activityName?.[currentLang] ||
-      dev.activityName?.ko ||
-      "이름 없음";
-
-    /* Role (🔥 안전 처리) */
-
-    const role = document.createElement("div");
-    role.className = "card-bio";
-    role.textContent =
-      dev.role?.[currentLang] ||
-      dev.role?.ko ||
-      "";
-
-    /* Stack (🔥 에러 방지) */
-
-    const stackBox = document.createElement("div");
-    stackBox.className = "card-stack";
-
-    if (Array.isArray(dev.stack)) {
-      dev.stack.forEach(s => {
-        const span = document.createElement("span");
-        span.textContent = s;
-        stackBox.appendChild(span);
-      });
+  loginButton.addEventListener("click", async () => {
+    if (auth.currentUser) {
+      await signOut(auth);
+      return;
     }
 
-    /* Assemble */
-
-    card.appendChild(img);
-    card.appendChild(name);
-    card.appendChild(role);
-    card.appendChild(stackBox);
-
-    container.appendChild(card);
-
+    await signInWithPopup(auth, provider);
   });
 
+  onAuthStateChanged(auth, (user) => {
+    loginButton.textContent = user ? "Logout" : "Google Login";
+    if (adminButton) {
+      adminButton.hidden = !user || user.uid !== ADMIN_UID;
+    }
+  });
+
+  adminButton?.addEventListener("click", () => {
+    window.location.href = "admin.html";
+  });
 }
 
-/* =============================
-   Load Developers (Realtime)
-============================= */
-
 function loadDevelopersRealtime() {
-
   onSnapshot(collection(db, "profiles"), (snapshot) => {
-
-    developersData = snapshot.docs.map(doc => ({
-      id: doc.data().id,
+    developersData = snapshot.docs.map((doc) => ({
+      docId: doc.id,
       ...doc.data()
     }));
 
     renderCards(developersData);
-
   });
-
 }
 
-/* =============================
-   Init
-============================= */
-
 window.addEventListener("DOMContentLoaded", () => {
-
+  initLanguageButtons();
   initSearch();
+  initAuthButton();
   loadDevelopersRealtime();
-
 });

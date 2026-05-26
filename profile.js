@@ -4,150 +4,137 @@ import {
   getDocs
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-/* =============================
-   URL
-============================= */
+const DEFAULT_IMAGE = "images/default-profile.png";
+const SUPPORTED_LANGUAGES = ["ko", "en", "ja"];
 
 const params = new URLSearchParams(window.location.search);
-const id = params.get("id");
-const currentLang = params.get("lang") || "ko";
+const profileId = params.get("id");
+const requestedLang = params.get("lang") || "ko";
+const currentLang = SUPPORTED_LANGUAGES.includes(requestedLang) ? requestedLang : "ko";
 
 document.documentElement.lang = currentLang;
 
-/* =============================
-   Load Data
-============================= */
+function getLocalizedValue(value, fallback = "") {
+  if (!value) return fallback;
+  if (typeof value === "string") return value;
+  return value[currentLang] || value.ko || fallback;
+}
+
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value || "";
+}
+
+function renderTagList(containerId, items = []) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = "";
+  items.forEach((item) => {
+    const tag = document.createElement("span");
+    tag.textContent = item;
+    container.appendChild(tag);
+  });
+}
+
+function renderProjects(projects = []) {
+  const projectBox = document.getElementById("profile-projects");
+  if (!projectBox) return;
+
+  projectBox.innerHTML = "";
+
+  projects.forEach((project) => {
+    const item = document.createElement("div");
+    item.className = "project-item";
+
+    const title = document.createElement("h4");
+    title.textContent = project.name || "";
+
+    const description = document.createElement("p");
+    description.textContent = getLocalizedValue(project.description);
+
+    const link = document.createElement("a");
+    link.href = project.link || "#";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "View Project";
+
+    item.append(title, description, link);
+    projectBox.appendChild(item);
+  });
+}
+
+function renderLinks(links = {}) {
+  const linkBox = document.getElementById("profile-links");
+  if (!linkBox) return;
+
+  linkBox.innerHTML = "";
+
+  Object.entries(links).forEach(([key, value]) => {
+    if (!value) return;
+
+    const link = document.createElement("a");
+    link.href = value;
+    link.target = key === "email" ? "_self" : "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = key.toUpperCase();
+
+    linkBox.appendChild(link);
+  });
+}
+
+function renderProfile(profile) {
+  if (!profile) {
+    setText("profile-activity", "Profile not found");
+    return;
+  }
+
+  const image = document.getElementById("profile-image");
+  if (image) {
+    image.src = profile.image || DEFAULT_IMAGE;
+    image.alt = getLocalizedValue(profile.activityName, profile.name || "Profile image");
+    image.onerror = () => {
+      image.src = DEFAULT_IMAGE;
+    };
+  }
+
+  setText("profile-name", profile.name);
+  setText("profile-activity", getLocalizedValue(profile.activityName));
+  setText("profile-role", getLocalizedValue(profile.role));
+  setText("profile-tagline", getLocalizedValue(profile.tagline));
+  setText("profile-affiliation", profile.affiliation);
+  setText("profile-started", profile.startedYear);
+
+  renderTagList("profile-stack", profile.stack || []);
+  renderTagList("profile-interests", profile.interests || []);
+  renderProjects(Array.isArray(profile.projects) ? profile.projects : []);
+  renderLinks(profile.links || {});
+}
 
 async function getProfiles() {
   const snapshot = await getDocs(collection(db, "profiles"));
-  return snapshot.docs.map(doc => doc.data());
+  return snapshot.docs.map((doc) => doc.data());
 }
 
-/* =============================
-   Render
-============================= */
-
-function renderProfile(dev) {
-
-  if (!dev) return;
-
-  /* 기본 정보 */
-
-  document.getElementById("profile-name").textContent = dev.name || "";
-
-  document.getElementById("profile-activity").textContent =
-    dev.activityName?.[currentLang] || dev.activityName?.ko || "";
-
-  document.getElementById("profile-role").textContent =
-    dev.role?.[currentLang] || dev.role?.ko || "";
-
-  document.getElementById("profile-tagline").textContent =
-    dev.tagline?.[currentLang] || dev.tagline?.ko || "";
-
-  document.getElementById("profile-affiliation").textContent =
-    dev.affiliation || "";
-
-  document.getElementById("profile-started").textContent =
-    dev.startedYear || "";
-
-  /* Stack */
-
-  const stackBox = document.getElementById("profile-stack");
-  stackBox.innerHTML = "";
-
-  (dev.stack || []).forEach(s => {
-    const span = document.createElement("span");
-    span.textContent = s;
-    stackBox.appendChild(span);
-  });
-
-  /* Interests */
-
-  const interestBox = document.getElementById("profile-interests");
-  interestBox.innerHTML = "";
-
-  (dev.interests || []).forEach(i => {
-    const span = document.createElement("span");
-    span.textContent = i;
-    interestBox.appendChild(span);
-  });
-
-  /* 🔥 Projects (핵심) */
-
-  const projectBox = document.getElementById("profile-projects");
-  projectBox.innerHTML = "";
-
-  if (Array.isArray(dev.projects)) {
-
-    dev.projects.forEach(p => {
-
-      const div = document.createElement("div");
-      div.className = "project-item";
-
-      const title = document.createElement("h4");
-      title.textContent = p.name || "";
-
-      const desc = document.createElement("p");
-      desc.textContent =
-        typeof p.description === "object"
-          ? p.description[currentLang] || p.description.ko
-          : p.description || "";
-
-      const link = document.createElement("a");
-      link.href = p.link || "#";
-      link.target = "_blank";
-      link.textContent = "View Project";
-
-      div.appendChild(title);
-      div.appendChild(desc);
-      div.appendChild(link);
-
-      projectBox.appendChild(div);
-
+function initLanguageButtons() {
+  document.querySelectorAll("[data-lang]").forEach((button) => {
+    button.classList.toggle("active", button.dataset.lang === currentLang);
+    button.addEventListener("click", () => {
+      window.location.href = `profile.html?id=${profileId}&lang=${button.dataset.lang}`;
     });
-
-  }
-
-  /* Links */
-
-  const linkBox = document.getElementById("profile-links");
-  linkBox.innerHTML = "";
-
-  if (dev.links) {
-    Object.entries(dev.links).forEach(([key, value]) => {
-      if (!value) return;
-
-      const a = document.createElement("a");
-      a.href = value;
-      a.target = "_blank";
-      a.textContent = key.toUpperCase();
-
-      linkBox.appendChild(a);
-    });
-  }
+  });
 }
-
-/* =============================
-   Init
-============================= */
 
 window.addEventListener("DOMContentLoaded", async () => {
+  initLanguageButtons();
 
-  const data = await getProfiles();
-  const dev = data.find(d => d.id === id);
+  const homeButton = document.getElementById("homeBtn");
+  if (homeButton) {
+    homeButton.addEventListener("click", () => {
+      window.location.href = `index.html?lang=${currentLang}`;
+    });
+  }
 
-  console.log("dev:", dev); // 디버깅용
-
-  renderProfile(dev);
-
-});
-
-/* =============================
-   Home Button
-============================= */
-
-const homeBtn = document.getElementById("homeBtn");
-
-homeBtn.addEventListener(onclick, () => {
-  location.href="https://minty-developer.github.io/Developer-Wiki/";
+  const profiles = await getProfiles();
+  renderProfile(profiles.find((profile) => profile.id === profileId));
 });

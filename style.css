@@ -72,9 +72,8 @@ header {
   gap: 8px;
 }
 
-/* Admin 버튼을 완전 오른쪽 끝으로 */
 .admin-btn {
-  margin-left: auto;   /* 이게 핵심 */
+  margin-left: auto;
   background: var(--accent);
   color: white;
   border: none;
@@ -128,7 +127,6 @@ header {
 
 /* ===== header-right ===== */
 
-/* 오른쪽 영역 묶기 */
 .header-right {
   display: flex;
   align-items: center;
@@ -166,9 +164,13 @@ main {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-color);
   border-radius: var(--radius);
+  color: inherit;
+  font: inherit;
   padding: 20px;
+  text-align: left;
   transition: 0.25s ease;
   cursor: pointer;
+  width: 100%;
 }
 
 .card:hover {
@@ -266,7 +268,6 @@ main {
   color: var(--accent);
 }
 
-/* Back 버튼 */
 .back-btn {
   margin-left: auto;
   background: transparent;
@@ -338,8 +339,6 @@ main {
   margin-bottom: 35px;
 }
 
-/* 검색창 */
-
 #searchInput {
   width: 100%;
   max-width: 420px;
@@ -358,8 +357,6 @@ main {
   box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.15);
 }
 
-/* Placeholder */
-
 #searchInput::placeholder {
   color: var(--text-secondary);
 }
@@ -377,15 +374,11 @@ header {
   justify-content: space-between;
 }
 
-/* Header Right Grouping */
-
 .header-right {
   display: flex;
   align-items: center;
   gap: 15px;
 }
-
-/* Language Buttons Container */
 
 .rang_select_box {
   display: flex;
@@ -399,8 +392,6 @@ header {
 .Card_Section {
   padding-top: 10px;
 }
-
-/* 카드 기본 애니메이션 강화 */
 
 .card {
   will-change: transform;
@@ -422,8 +413,6 @@ header {
     max-width: 100%;
   }
 }
-
-/* ===== Responsive ===== */
 
 @media (max-width: 768px) {
   .head_box {
