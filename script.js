@@ -19,8 +19,18 @@ const requestedLang = params.get("lang") || "ko";
 const currentLang = SUPPORTED_LANGUAGES.includes(requestedLang) ? requestedLang : "ko";
 
 let developersData = [];
+let localDevelopersData = [];
 
 document.documentElement.lang = currentLang;
+
+function normalizeLocalAuthHost() {
+  if (window.location.hostname !== "127.0.0.1") return false;
+
+  const nextUrl = new URL(window.location.href);
+  nextUrl.hostname = "localhost";
+  window.location.replace(nextUrl.href);
+  return true;
+}
 
 function getLocalizedValue(value, fallback = "") {
   if (!value) return fallback;
@@ -29,10 +39,36 @@ function getLocalizedValue(value, fallback = "") {
 }
 
 function setSafeImage(imgElement, src) {
-  imgElement.src = src || DEFAULT_IMAGE;
+  imgElement.src = normalizeImagePath(src);
   imgElement.onerror = () => {
     imgElement.src = DEFAULT_IMAGE;
   };
+}
+
+function normalizeImagePath(src) {
+  if (!src) return DEFAULT_IMAGE;
+  if (src.startsWith("/Developer-Wiki/")) {
+    return src.replace("/Developer-Wiki/", "");
+  }
+  return src;
+}
+
+function mergeDevelopers(localData, remoteData) {
+  const developersById = new Map();
+
+  localData.forEach((developer) => {
+    if (developer.id) developersById.set(developer.id, developer);
+  });
+
+  remoteData.forEach((developer) => {
+    if (!developer.id) return;
+    developersById.set(developer.id, {
+      ...developersById.get(developer.id),
+      ...developer
+    });
+  });
+
+  return Array.from(developersById.values());
 }
 
 function initLanguageButtons() {
@@ -133,12 +169,25 @@ function initAuthButton() {
   const provider = new GoogleAuthProvider();
 
   loginButton.addEventListener("click", async () => {
-    if (auth.currentUser) {
-      await signOut(auth);
-      return;
-    }
+    loginButton.disabled = true;
 
-    await signInWithPopup(auth, provider);
+    try {
+      if (auth.currentUser) {
+        await signOut(auth);
+        return;
+      }
+
+      await signInWithPopup(auth, provider);
+    } catch (error) {
+      if (error.code === "auth/unauthorized-domain") {
+        alert("Google Login is not allowed on this local domain. Open this page with localhost instead of 127.0.0.1.");
+      } else {
+        alert(`Google Login failed: ${error.message}`);
+      }
+      console.error(error);
+    } finally {
+      loginButton.disabled = false;
+    }
   });
 
   onAuthStateChanged(auth, (user) => {
@@ -155,18 +204,39 @@ function initAuthButton() {
 
 function loadDevelopersRealtime() {
   onSnapshot(collection(db, "profiles"), (snapshot) => {
-    developersData = snapshot.docs.map((doc) => ({
+    const remoteDevelopersData = snapshot.docs.map((doc) => ({
       docId: doc.id,
       ...doc.data()
     }));
 
+    developersData = mergeDevelopers(localDevelopersData, remoteDevelopersData);
+    renderCards(developersData);
+  }, (error) => {
+    console.error(error);
+    developersData = localDevelopersData;
     renderCards(developersData);
   });
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+async function loadLocalDevelopers() {
+  try {
+    const response = await fetch("developers.json");
+    if (!response.ok) throw new Error(`developers.json returned ${response.status}`);
+    localDevelopersData = await response.json();
+    developersData = localDevelopersData;
+    renderCards(developersData);
+  } catch (error) {
+    console.error(error);
+    localDevelopersData = [];
+  }
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  if (normalizeLocalAuthHost()) return;
+
   initLanguageButtons();
   initSearch();
   initAuthButton();
+  await loadLocalDevelopers();
   loadDevelopersRealtime();
 });

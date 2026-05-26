@@ -20,6 +20,14 @@ function getLocalizedValue(value, fallback = "") {
   return value[currentLang] || value.ko || fallback;
 }
 
+function normalizeImagePath(src) {
+  if (!src) return DEFAULT_IMAGE;
+  if (src.startsWith("/Developer-Wiki/")) {
+    return src.replace("/Developer-Wiki/", "");
+  }
+  return src;
+}
+
 function setText(id, value) {
   const element = document.getElementById(id);
   if (element) element.textContent = value || "";
@@ -91,7 +99,7 @@ function renderProfile(profile) {
 
   const image = document.getElementById("profile-image");
   if (image) {
-    image.src = profile.image || DEFAULT_IMAGE;
+    image.src = normalizeImagePath(profile.image);
     image.alt = getLocalizedValue(profile.activityName, profile.name || "Profile image");
     image.onerror = () => {
       image.src = DEFAULT_IMAGE;
@@ -116,6 +124,35 @@ async function getProfiles() {
   return snapshot.docs.map((doc) => doc.data());
 }
 
+async function getLocalProfiles() {
+  try {
+    const response = await fetch("developers.json");
+    if (!response.ok) throw new Error(`developers.json returned ${response.status}`);
+    return response.json();
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+function mergeProfiles(localProfiles, remoteProfiles) {
+  const profilesById = new Map();
+
+  localProfiles.forEach((profile) => {
+    if (profile.id) profilesById.set(profile.id, profile);
+  });
+
+  remoteProfiles.forEach((profile) => {
+    if (!profile.id) return;
+    profilesById.set(profile.id, {
+      ...profilesById.get(profile.id),
+      ...profile
+    });
+  });
+
+  return Array.from(profilesById.values());
+}
+
 function initLanguageButtons() {
   document.querySelectorAll("[data-lang]").forEach((button) => {
     button.classList.toggle("active", button.dataset.lang === currentLang);
@@ -135,6 +172,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  const profiles = await getProfiles();
+  const [localProfiles, remoteProfiles] = await Promise.all([
+    getLocalProfiles(),
+    getProfiles().catch((error) => {
+      console.error(error);
+      return [];
+    })
+  ]);
+  const profiles = mergeProfiles(localProfiles, remoteProfiles);
   renderProfile(profiles.find((profile) => profile.id === profileId));
 });
