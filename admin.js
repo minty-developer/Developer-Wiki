@@ -64,6 +64,18 @@ async function uploadImage(file, id) {
   return getDownloadURL(imageRef);
 }
 
+async function tryUploadImage(file, id) {
+  if (!file) return "";
+
+  try {
+    return await uploadImage(file, id);
+  } catch (error) {
+    console.error(error);
+    alert("Image upload failed, but the profile data will still be saved. Check Firebase Storage CORS settings.");
+    return "";
+  }
+}
+
 function setModalVisible(id, isVisible) {
   const modal = document.getElementById(id);
   if (modal) modal.style.display = isVisible ? "block" : "none";
@@ -146,7 +158,7 @@ async function saveNewProfile() {
   }
 
   const file = document.getElementById("newImageFile")?.files[0];
-  const imageUrl = file ? await uploadImage(file, id) : DEFAULT_IMAGE;
+  const imageUrl = await tryUploadImage(file, id) || DEFAULT_IMAGE;
   const newProfile = {
     id,
     ...buildProfile("new", imageUrl)
@@ -197,16 +209,35 @@ async function saveEditedProfile() {
     return;
   }
 
-  const file = document.getElementById("editImageFile")?.files[0];
-  const id = getValue("editId");
-  const imageUrl = file ? await uploadImage(file, id) : "";
-  const profile = buildProfile("edit", imageUrl);
+  const saveButton = document.getElementById("saveEditBtn");
+  const fileInput = document.getElementById("editImageFile");
+  const file = fileInput?.files[0];
+  const profile = buildProfile("edit", "");
 
   if (!profile.projects) return;
 
-  await updateDoc(doc(db, "profiles", currentDocId), profile);
-  alert("Profile updated.");
-  setModalVisible("editModal", false);
+  if (saveButton) saveButton.disabled = true;
+
+  try {
+    const profileRef = doc(db, "profiles", currentDocId);
+    await updateDoc(profileRef, profile);
+
+    if (file) {
+      const imageUrl = await tryUploadImage(file, getValue("editId"));
+      if (imageUrl) {
+        await updateDoc(profileRef, { image: imageUrl });
+        fileInput.value = "";
+      }
+    }
+
+    alert("Profile updated.");
+    setModalVisible("editModal", false);
+  } catch (error) {
+    console.error(error);
+    alert(`Profile update failed: ${error.message}`);
+  } finally {
+    if (saveButton) saveButton.disabled = false;
+  }
 }
 
 async function deleteProfile() {
