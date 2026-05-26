@@ -1,48 +1,46 @@
 [
   {
     "id": "minty",
-
     "activityName": {
       "ko": "Minty",
       "en": "Minty",
       "ja": "ミンティ"
     },
-
     "name": "김민승",
-
     "role": {
       "ko": "소프트웨어 개발자",
       "en": "Software Developer",
       "ja": "ソフトウェア開発者(かいはつしゃ)"
     },
-
     "tagline": {
       "ko": "웹사이트을 만드는 학생 개발자",
       "en": "Student developer building website",
       "ja": "ウェブサイトを作(つく)る学生(がくせい)開発者(かいはつしゃ)"
     },
-
     "affiliation": "대덕소프트웨어마이스터고등학교",
-
     "startedYear": 2023,
-
-    "stack": ["HTML", "CSS", "JavaScript", "C", "Python"],
-
+    "stack": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "C",
+      "C#",
+      "Python"
+    ],
     "interests": [
       "Web Frontend",
       "Web Backend"
     ],
-
     "projects": [
       {
-        "name": "Discord Bot",
+        "name": "Lyrics_bokaro",
         "description": {
-          "ko": "디스코드 이코노미 봇",
-          "en": "discord economy bot",
-          "ja": "Discord economy ボット"
+          "ko": "가사 뷰어",
+          "en": "Lyrics viewer",
+          "ja": "歌詞ヴューアー"
         },
-        "link": "https://github.com/minty-developer/Country_Server_Bot"
-      }, 
+        "link": "https://github.com/minty-developer/lyrics_bokaro"
+      },
       {
         "name": "Page Loop",
         "description": {
@@ -51,7 +49,7 @@
           "ja": "ウェブ本ビューアー"
         },
         "link": "https://minty-developer.github.io/Page_Loop"
-      }, 
+      },
       {
         "name": "Exercise Timer",
         "description": {
@@ -59,53 +57,48 @@
           "en": "Timer for exercises",
           "ja": "運動用タイマー"
         },
-        "link": "https://minty-developer.github.io/Exercise_Timer"
+        "link": "https://github.com/minty-developer/Exercise_Timer"
       }
     ],
-
     "links": {
       "github": "https://github.com/minty-developer",
       "blog": "",
       "email": "mailto:gimminseung036@gmail.com"
     },
-
-    "image": "images/default-profile.png"
+    "image": "images/minty.jpg"
   },
-
   {
     "id": "suil",
-
     "activityName": {
       "ko": "수리",
       "en": "Suil",
       "ja": "スーリ"
     },
-
     "name": "미상",
-
     "role": {
       "ko": "Butterscotch팀의 Eliasfunkin' Revival 소스 코더",
       "en": "Butterscotch team's Eliasfunkin' Revival source coder",
       "ja": "Butterscotchチームの Eliasfunkin' Revival ソースコーダー"
     },
-
     "tagline": {
       "ko": "끝까지 나아가는 게임 개발/백엔드 개발자",
       "en": "Student developer building website",
       "ja": "ウェブサイトを作(つく)る学生(がくせい)開発者(かいはつしゃ)"
     },
-
     "affiliation": "대덕소프트웨어마이스터고등학교",
-
     "startedYear": 2023,
-
-    "stack": ["C", "Python", "Java", "HTML", "CSS", "Haxe"],
-
+    "stack": [
+      "C",
+      "Python",
+      "Java",
+      "HTML",
+      "CSS",
+      "Haxe"
+    ],
     "interests": [
       "Develop game",
       "Web"
     ],
-
     "projects": [
       {
         "name": "독수리봇 마크2",
@@ -135,16 +128,11 @@
         "link": "https://gamebanana.com/wips/98493"
       }
     ],
-
     "links": {
       "github": "https://github.com/suil0304",
       "blog": "",
       "email": "mailto:eagle030410@gmail.com"
     },
-
     "image": "/Developer-Wiki/images/suil.png"
   }
 ]
-
-
-
