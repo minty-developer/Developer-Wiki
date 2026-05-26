@@ -28,6 +28,18 @@ function normalizeImagePath(src) {
   return src;
 }
 
+function getProfileAliases(profile) {
+  return [
+    profile.id,
+    profile.name,
+    profile.activityName?.ko,
+    profile.activityName?.en,
+    profile.activityName?.ja
+  ]
+    .filter(Boolean)
+    .map((alias) => alias.toLowerCase().trim());
+}
+
 function setText(id, value) {
   const element = document.getElementById(id);
   if (element) element.textContent = value || "";
@@ -137,18 +149,27 @@ async function getLocalProfiles() {
 
 function mergeProfiles(localProfiles, remoteProfiles) {
   const profilesById = new Map();
+  const idByAlias = new Map();
 
-  localProfiles.forEach((profile) => {
-    if (profile.id) profilesById.set(profile.id, profile);
-  });
+  function addProfile(profile) {
+    const aliases = getProfileAliases(profile);
+    const existingId = aliases.map((alias) => idByAlias.get(alias)).find(Boolean);
+    const key = existingId || profile.id || aliases[0];
 
-  remoteProfiles.forEach((profile) => {
-    if (!profile.id) return;
-    profilesById.set(profile.id, {
-      ...profilesById.get(profile.id),
+    if (!key) return;
+
+    profilesById.set(key, {
+      ...profilesById.get(key),
       ...profile
     });
-  });
+
+    getProfileAliases(profilesById.get(key)).forEach((alias) => {
+      idByAlias.set(alias, key);
+    });
+  }
+
+  localProfiles.forEach(addProfile);
+  remoteProfiles.forEach(addProfile);
 
   return Array.from(profilesById.values());
 }

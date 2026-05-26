@@ -53,20 +53,41 @@ function normalizeImagePath(src) {
   return src;
 }
 
+function getDeveloperAliases(developer) {
+  return [
+    developer.id,
+    developer.name,
+    developer.activityName?.ko,
+    developer.activityName?.en,
+    developer.activityName?.ja
+  ]
+    .filter(Boolean)
+    .map((alias) => alias.toLowerCase().trim());
+}
+
 function mergeDevelopers(localData, remoteData) {
   const developersById = new Map();
+  const idByAlias = new Map();
 
-  localData.forEach((developer) => {
-    if (developer.id) developersById.set(developer.id, developer);
-  });
+  function addDeveloper(developer) {
+    const aliases = getDeveloperAliases(developer);
+    const existingId = aliases.map((alias) => idByAlias.get(alias)).find(Boolean);
+    const key = existingId || developer.id || aliases[0];
 
-  remoteData.forEach((developer) => {
-    if (!developer.id) return;
-    developersById.set(developer.id, {
-      ...developersById.get(developer.id),
+    if (!key) return;
+
+    developersById.set(key, {
+      ...developersById.get(key),
       ...developer
     });
-  });
+
+    getDeveloperAliases(developersById.get(key)).forEach((alias) => {
+      idByAlias.set(alias, key);
+    });
+  }
+
+  localData.forEach(addDeveloper);
+  remoteData.forEach(addDeveloper);
 
   return Array.from(developersById.values());
 }
