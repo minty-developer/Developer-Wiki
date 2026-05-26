@@ -1,4 +1,4 @@
-import { auth, db, storage } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 import {
   addDoc,
   collection,
@@ -11,14 +11,11 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import {
-  getDownloadURL,
-  ref,
-  uploadBytes
-} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
 
 const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
 const DEFAULT_IMAGE = "images/default-profile.png";
+const MAX_PROFILE_IMAGE_SIZE = 512;
+const MAX_IMAGE_DATA_URL_LENGTH = 900000;
 
 let currentDocId = "";
 
@@ -58,22 +55,54 @@ async function getProfiles() {
   }));
 }
 
-async function uploadImage(file, id) {
-  const imageRef = ref(storage, `profiles/${id}/${file.name}`);
-  await uploadBytes(imageRef, file);
-  return getDownloadURL(imageRef);
-}
-
-async function tryUploadImage(file, id) {
+async function getProfileImageUrl(file) {
   if (!file) return "";
 
   try {
-    return await uploadImage(file, id);
+    return await resizeImageToDataUrl(file);
   } catch (error) {
     console.error(error);
-    alert("Image upload failed, but the profile data will still be saved. Check Firebase Storage CORS settings.");
+    alert(`Image processing failed: ${error.message}`);
     return "";
   }
+}
+
+function resizeImageToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const image = new Image();
+
+      image.onload = () => {
+        const scale = Math.min(
+          1,
+          MAX_PROFILE_IMAGE_SIZE / image.width,
+          MAX_PROFILE_IMAGE_SIZE / image.height
+        );
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+
+        const context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+        if (dataUrl.length > MAX_IMAGE_DATA_URL_LENGTH) {
+          reject(new Error("Image is too large. Please choose a smaller image."));
+          return;
+        }
+
+        resolve(dataUrl);
+      };
+
+      image.onerror = () => reject(new Error("Could not read this image file."));
+      image.src = reader.result;
+    };
+
+    reader.onerror = () => reject(new Error("Could not read this image file."));
+    reader.readAsDataURL(file);
+  });
 }
 
 function setModalVisible(id, isVisible) {
@@ -158,7 +187,7 @@ async function saveNewProfile() {
   }
 
   const file = document.getElementById("newImageFile")?.files[0];
-  const imageUrl = await tryUploadImage(file, id) || DEFAULT_IMAGE;
+  const imageUrl = await getProfileImageUrl(file) || DEFAULT_IMAGE;
   const newProfile = {
     id,
     ...buildProfile("new", imageUrl)
@@ -223,7 +252,7 @@ async function saveEditedProfile() {
     await updateDoc(profileRef, profile);
 
     if (file) {
-      const imageUrl = await tryUploadImage(file, getValue("editId"));
+      const imageUrl = await getProfileImageUrl(file);
       if (imageUrl) {
         await updateDoc(profileRef, { image: imageUrl });
         fileInput.value = "";
