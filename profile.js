@@ -193,13 +193,20 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  const [localProfiles, remoteProfiles] = await Promise.all([
-    getLocalProfiles(),
-    getProfiles().catch((error) => {
-      console.error(error);
-      return [];
-    })
-  ]);
-  const profiles = mergeProfiles(localProfiles, remoteProfiles);
-  renderProfile(profiles.find((profile) => profile.id === profileId));
+  const localProfiles = await getLocalProfiles();
+  const profile = localProfiles.find((profile) => profile.id === profileId);
+
+  renderProfile(profile);
+
+
+  // firebase 연동
+  // const [localProfiles, remoteProfiles] = await Promise.all([
+  //   getLocalProfiles(),
+  //   getProfiles().catch((error) => {
+  //     console.error(error);
+  //     return [];
+  //   })
+  // ]);
+  // const profiles = mergeProfiles(localProfiles, remoteProfiles);
+  // renderProfile(profiles.find((profile) => profile.id === profileId));
 });
