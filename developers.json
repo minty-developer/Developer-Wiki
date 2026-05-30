@@ -134,5 +134,45 @@
       "email": "mailto:eagle030410@gmail.com"
     },
     "image": "/Developer-Wiki/images/suil.png"
+  },
+  {
+    "id": "iriss",
+    "activityName": {
+      "ko": "iriss",
+      "en": "iriss",
+      "ja": "イリス"
+    },
+    "name": "미상",
+    "role": {
+      "ko": "게임 개발?자",
+      "en": "Game developer?",
+      "ja": "ゲーム開発？者"
+    },
+    "tagline": {
+      "ko": "범부 중 범부",
+      "en": "The most ordinary of ordinary people",
+      "ja": "凡人(ぼんじん)の極み(きわみ)"
+    },
+    "affiliation": "대덕소프트웨어마이스터고등학교",
+    "startedYear": 2022,
+    "stack": [
+      "Lua",
+      "Python",
+      "C",
+      "C#",
+      "HTML",
+      "CSS"
+    ],
+    "interests": [
+      "Game",
+      "FE"
+    ],
+    "projects": [],
+    "links": {
+      "github": "https://github.com/dlrbqja",
+      "blog": "",
+      "email": ""
+    },
+    "image": "/Developer-Wiki/images/dlrbqja.jpg"
   }
 ]

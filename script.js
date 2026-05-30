@@ -55,11 +55,7 @@ function normalizeImagePath(src) {
 
 function getDeveloperAliases(developer) {
   return [
-    developer.id,
-    developer.name,
-    developer.activityName?.ko,
-    developer.activityName?.en,
-    developer.activityName?.ja
+    developer.id
   ]
     .filter(Boolean)
     .map((alias) => alias.toLowerCase().trim());
@@ -223,22 +219,6 @@ function initAuthButton() {
   });
 }
 
-function loadDevelopersRealtime() {
-  onSnapshot(collection(db, "profiles"), (snapshot) => {
-    const remoteDevelopersData = snapshot.docs.map((doc) => ({
-      docId: doc.id,
-      ...doc.data()
-    }));
-
-    developersData = mergeDevelopers(localDevelopersData, remoteDevelopersData);
-    renderCards(developersData);
-  }, (error) => {
-    console.error(error);
-    developersData = localDevelopersData;
-    renderCards(developersData);
-  });
-}
-
 async function loadLocalDevelopers() {
   try {
     const response = await fetch("developers.json");
@@ -259,5 +239,4 @@ window.addEventListener("DOMContentLoaded", async () => {
   initSearch();
   initAuthButton();
   await loadLocalDevelopers();
-  loadDevelopersRealtime();
 });
