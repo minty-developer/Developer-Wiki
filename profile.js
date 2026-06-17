@@ -28,18 +28,6 @@ function normalizeImagePath(src) {
   return src;
 }
 
-function getProfileAliases(profile) {
-  return [
-    profile.id,
-    profile.name,
-    profile.activityName?.ko,
-    profile.activityName?.en,
-    profile.activityName?.ja
-  ]
-    .filter(Boolean)
-    .map((alias) => alias.toLowerCase().trim());
-}
-
 function setText(id, value) {
   const element = document.getElementById(id);
   if (element) element.textContent = value || "";
@@ -133,45 +121,7 @@ function renderProfile(profile) {
 
 async function getProfiles() {
   const snapshot = await getDocs(collection(db, "profiles"));
-  return snapshot.docs.map((doc) => doc.data());
-}
-
-async function getLocalProfiles() {
-  try {
-    const response = await fetch("developers.json");
-    if (!response.ok) throw new Error(`developers.json returned ${response.status}`);
-    return response.json();
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
-}
-
-function mergeProfiles(localProfiles, remoteProfiles) {
-  const profilesById = new Map();
-  const idByAlias = new Map();
-
-  function addProfile(profile) {
-    const aliases = getProfileAliases(profile);
-    const existingId = aliases.map((alias) => idByAlias.get(alias)).find(Boolean);
-    const key = existingId || profile.id || aliases[0];
-
-    if (!key) return;
-
-    profilesById.set(key, {
-      ...profilesById.get(key),
-      ...profile
-    });
-
-    getProfileAliases(profilesById.get(key)).forEach((alias) => {
-      idByAlias.set(alias, key);
-    });
-  }
-
-  localProfiles.forEach(addProfile);
-  remoteProfiles.forEach(addProfile);
-
-  return Array.from(profilesById.values());
+  return snapshot.docs.map((profileDoc) => profileDoc.data());
 }
 
 function initLanguageButtons() {
@@ -193,20 +143,11 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  const localProfiles = await getLocalProfiles();
-  const profile = localProfiles.find((profile) => profile.id === profileId);
-
-  renderProfile(profile);
-
-
-  // firebase 연동
-  // const [localProfiles, remoteProfiles] = await Promise.all([
-  //   getLocalProfiles(),
-  //   getProfiles().catch((error) => {
-  //     console.error(error);
-  //     return [];
-  //   })
-  // ]);
-  // const profiles = mergeProfiles(localProfiles, remoteProfiles);
-  // renderProfile(profiles.find((profile) => profile.id === profileId));
+  try {
+    const profiles = await getProfiles();
+    renderProfile(profiles.find((profile) => profile.id === profileId));
+  } catch (error) {
+    console.error(error);
+    renderProfile(null);
+  }
 });

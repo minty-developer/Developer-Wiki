@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="style.css">
   <title>Admin Panel</title>
 </head>
@@ -11,7 +12,7 @@
     <div class="head_box">
       <div class="title_box">
         <h1>Admin Panel</h1>
-        <h3>관리자 전용 페이지</h3>
+        <h3>Developer profile management</h3>
       </div>
 
       <button type="button" onclick="location.href='index.html'" class="back-btn">Back</button>
@@ -19,113 +20,121 @@
   </header>
 
   <main>
-    <section class="admin-container">
+    <section class="admin-container admin-shell">
       <div class="admin-login" id="adminLogin">
-        <h2>관리자 인증</h2>
-        <p>관리자 계정으로 로그인하면 메뉴가 표시됩니다.</p>
+        <h2>Admin sign in</h2>
+        <p>Sign in with the authorized Google account to manage profiles.</p>
+        <button type="button" id="adminLoginBtn">Google Login</button>
       </div>
 
-      <div class="admin-card" id="adminPanel" style="display: none;">
-        <h2>관리자 메뉴</h2>
+      <div class="admin-card admin-workspace" id="adminPanel" hidden>
+        <aside class="admin-sidebar">
+          <div class="admin-sidebar-head">
+            <h2>Profiles</h2>
+            <button type="button" id="addProfileBtn">New</button>
+          </div>
 
-        <div class="admin-actions">
-          <button type="button" id="editProfiles">프로필 수정</button>
-          <button type="button" id="addProfileBtn">프로필 추가</button>
-          <button type="button" id="deleteProfile">프로필 삭제</button>
-          <button type="button" id="logoutBtn">Logout</button>
-        </div>
+          <input type="search" id="adminSearchInput" placeholder="Search profiles">
+          <div class="admin-profile-list" id="adminProfileList"></div>
 
-        <div id="editModal" style="display:none">
-          <h3>프로필 수정</h3>
+          <button type="button" id="importSeedBtn" class="admin-secondary-button">Import seed data</button>
+          <button type="button" id="logoutBtn" class="admin-secondary-button">Logout</button>
+        </aside>
 
-          <input id="editId" placeholder="수정할 ID 입력">
-          <button type="button" id="loadEditBtn">데이터 불러오기</button>
+        <form class="admin-editor" id="profileForm">
+          <div class="admin-editor-head">
+            <div>
+              <h2 id="editorTitle">Select a profile</h2>
+              <p id="editorStatus">Choose a profile from the list or create a new one.</p>
+            </div>
+            <div class="admin-editor-actions">
+              <button type="submit" id="saveProfileBtn">Save</button>
+              <button type="button" id="deleteProfileBtn" class="danger-button">Delete</button>
+            </div>
+          </div>
 
-          <hr>
+          <div class="admin-form-grid">
+            <label>
+              ID
+              <input id="editId" required placeholder="minty">
+            </label>
+            <label>
+              Name
+              <input id="editName" required placeholder="Display name">
+            </label>
+            <label>
+              Affiliation
+              <input id="editAffiliation" placeholder="School or team">
+            </label>
+            <label>
+              Started Year
+              <input id="editStartedYear" type="number" placeholder="2023">
+            </label>
+          </div>
 
-          <input id="editName" placeholder="Name"><br>
-          <input id="editActivityKo" placeholder="Activity KO"><br>
-          <input id="editActivityEn" placeholder="Activity EN"><br>
-          <input id="editActivityJa" placeholder="Activity JA"><br>
-          <input id="editRoleKo" placeholder="Role KO"><br>
-          <input id="editRoleEn" placeholder="Role EN"><br>
-          <input id="editRoleJa" placeholder="Role JA"><br>
-          <input id="editTaglineKo" placeholder="Tagline KO"><br>
-          <input id="editTaglineEn" placeholder="Tagline EN"><br>
-          <input id="editTaglineJa" placeholder="Tagline JA"><br>
-          <input id="editAffiliation" placeholder="Affiliation"><br>
-          <input id="editStartedYear" type="number" placeholder="Started Year"><br>
-          <input id="editStack" placeholder="Stack, comma separated"><br>
-          <input id="editInterests" placeholder="Interests, comma separated"><br>
-          <input id="editGithub" placeholder="GitHub URL"><br>
-          <input id="editBlog" placeholder="Blog URL"><br>
-          <input id="editEmail" placeholder="Email"><br>
+          <div class="admin-form-section">
+            <h3>Activity Name</h3>
+            <div class="admin-form-grid three">
+              <label>KO<input id="editActivityKo"></label>
+              <label>EN<input id="editActivityEn"></label>
+              <label>JA<input id="editActivityJa"></label>
+            </div>
+          </div>
 
-          <h4>Profile Image</h4>
-          <input type="file" id="editImageFile" accept="image/*">
-          <img id="editPreviewImage" alt="" style="width:100px;">
+          <div class="admin-form-section">
+            <h3>Role</h3>
+            <div class="admin-form-grid three">
+              <label>KO<input id="editRoleKo"></label>
+              <label>EN<input id="editRoleEn"></label>
+              <label>JA<input id="editRoleJa"></label>
+            </div>
+          </div>
 
-          <h4>Projects</h4>
-          <textarea id="editProjects" placeholder="JSON input"></textarea>
+          <div class="admin-form-section">
+            <h3>Tagline</h3>
+            <div class="admin-form-grid three">
+              <label>KO<input id="editTaglineKo"></label>
+              <label>EN<input id="editTaglineEn"></label>
+              <label>JA<input id="editTaglineJa"></label>
+            </div>
+          </div>
 
-          <button type="button" id="saveEditBtn">Save</button>
-          <button type="button" data-close-modal="editModal">Close</button>
-        </div>
+          <div class="admin-form-grid">
+            <label>
+              Stack
+              <input id="editStack" placeholder="HTML, CSS, JavaScript">
+            </label>
+            <label>
+              Interests
+              <input id="editInterests" placeholder="Web, Game">
+            </label>
+            <label>
+              GitHub URL
+              <input id="editGithub" type="url">
+            </label>
+            <label>
+              Blog URL
+              <input id="editBlog" type="url">
+            </label>
+            <label>
+              Email
+              <input id="editEmail" type="email">
+            </label>
+          </div>
 
-        <div id="addModal" style="display:none">
-          <h3>프로필 추가</h3>
+          <div class="admin-form-section">
+            <h3>Profile Image</h3>
+            <div class="admin-image-row">
+              <img id="editPreviewImage" alt="">
+              <input type="file" id="editImageFile" accept="image/*">
+            </div>
+          </div>
 
-          <input id="newId" placeholder="ID"><br>
-          <input id="newName" placeholder="Name"><br>
-
-          <h4>Activity Name</h4>
-          <input id="newActivityKo" placeholder="Activity KO"><br>
-          <input id="newActivityEn" placeholder="Activity EN"><br>
-          <input id="newActivityJa" placeholder="Activity JA"><br>
-
-          <h4>Role</h4>
-          <input id="newRoleKo" placeholder="Role KO"><br>
-          <input id="newRoleEn" placeholder="Role EN"><br>
-          <input id="newRoleJa" placeholder="Role JA"><br>
-
-          <h4>Tagline</h4>
-          <input id="newTaglineKo" placeholder="Tagline KO"><br>
-          <input id="newTaglineEn" placeholder="Tagline EN"><br>
-          <input id="newTaglineJa" placeholder="Tagline JA"><br>
-
-          <input id="newAffiliation" placeholder="Affiliation"><br>
-          <input id="newStartedYear" type="number" placeholder="Started Year"><br>
-
-          <h4>Stack</h4>
-          <input id="newStack" placeholder="HTML, CSS, JS"><br>
-
-          <h4>Interests</h4>
-          <input id="newInterests" placeholder="Game, Web"><br>
-
-          <h4>Links</h4>
-          <input id="newGithub" placeholder="GitHub URL"><br>
-          <input id="newBlog" placeholder="Blog URL"><br>
-          <input id="newEmail" placeholder="Email"><br>
-
-          <h4>Profile Image</h4>
-          <input type="file" id="newImageFile" accept="image/*">
-          <br>
-          <img id="previewImage" alt="" style="width:100px; margin-top:10px;">
-
-          <h4>Projects</h4>
-          <textarea id="newProjects" placeholder="JSON input"></textarea>
-
-          <button type="button" id="saveAddBtn">Save</button>
-          <button type="button" data-close-modal="addModal">Close</button>
-        </div>
-
-        <div id="deleteModal" style="display:none">
-          <h3>프로필 삭제</h3>
-          <input id="deleteId" placeholder="삭제할 ID 입력">
-          <br><br>
-          <button type="button" id="confirmDeleteBtn">Delete</button>
-          <button type="button" data-close-modal="deleteModal">Close</button>
-        </div>
+          <div class="admin-form-section">
+            <h3>Projects JSON</h3>
+            <textarea id="editProjects" spellcheck="false" placeholder='[{"name":"Project","description":{"ko":"","en":"","ja":""},"link":"https://..."}]'></textarea>
+          </div>
+        </form>
       </div>
     </section>
   </main>

@@ -19,7 +19,6 @@ const requestedLang = params.get("lang") || "ko";
 const currentLang = SUPPORTED_LANGUAGES.includes(requestedLang) ? requestedLang : "ko";
 
 let developersData = [];
-let localDevelopersData = [];
 
 document.documentElement.lang = currentLang;
 
@@ -38,13 +37,6 @@ function getLocalizedValue(value, fallback = "") {
   return value[currentLang] || value.ko || fallback;
 }
 
-function setSafeImage(imgElement, src) {
-  imgElement.src = normalizeImagePath(src);
-  imgElement.onerror = () => {
-    imgElement.src = DEFAULT_IMAGE;
-  };
-}
-
 function normalizeImagePath(src) {
   if (!src) return DEFAULT_IMAGE;
   if (src.startsWith("/Developer-Wiki/")) {
@@ -53,39 +45,11 @@ function normalizeImagePath(src) {
   return src;
 }
 
-function getDeveloperAliases(developer) {
-  return [
-    developer.id
-  ]
-    .filter(Boolean)
-    .map((alias) => alias.toLowerCase().trim());
-}
-
-function mergeDevelopers(localData, remoteData) {
-  const developersById = new Map();
-  const idByAlias = new Map();
-
-  function addDeveloper(developer) {
-    const aliases = getDeveloperAliases(developer);
-    const existingId = aliases.map((alias) => idByAlias.get(alias)).find(Boolean);
-    const key = existingId || developer.id || aliases[0];
-
-    if (!key) return;
-
-    developersById.set(key, {
-      ...developersById.get(key),
-      ...developer
-    });
-
-    getDeveloperAliases(developersById.get(key)).forEach((alias) => {
-      idByAlias.set(alias, key);
-    });
-  }
-
-  localData.forEach(addDeveloper);
-  remoteData.forEach(addDeveloper);
-
-  return Array.from(developersById.values());
+function setSafeImage(imgElement, src) {
+  imgElement.src = normalizeImagePath(src);
+  imgElement.onerror = () => {
+    imgElement.src = DEFAULT_IMAGE;
+  };
 }
 
 function initLanguageButtons() {
@@ -104,7 +68,7 @@ function renderCards(data) {
   container.innerHTML = "";
 
   if (!data.length) {
-    container.innerHTML = "<p>No profiles found.</p>";
+    container.innerHTML = "<p>No profiles found. Import data from the admin page.</p>";
     return;
   }
 
@@ -219,24 +183,27 @@ function initAuthButton() {
   });
 }
 
-async function loadLocalDevelopers() {
-  try {
-    const response = await fetch("developers.json");
-    if (!response.ok) throw new Error(`developers.json returned ${response.status}`);
-    localDevelopersData = await response.json();
-    developersData = localDevelopersData;
+function loadDevelopersRealtime() {
+  onSnapshot(collection(db, "profiles"), (snapshot) => {
+    developersData = snapshot.docs
+      .map((profileDoc) => ({
+        docId: profileDoc.id,
+        ...profileDoc.data()
+      }))
+      .sort((a, b) => (a.id || "").localeCompare(b.id || ""));
+
     renderCards(developersData);
-  } catch (error) {
+  }, (error) => {
     console.error(error);
-    localDevelopersData = [];
-  }
+    renderCards([]);
+  });
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
+window.addEventListener("DOMContentLoaded", () => {
   if (normalizeLocalAuthHost()) return;
 
   initLanguageButtons();
   initSearch();
   initAuthButton();
-  await loadLocalDevelopers();
+  loadDevelopersRealtime();
 });
