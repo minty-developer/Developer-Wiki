@@ -33,155 +33,6 @@ const searchInput = document.getElementById("adminSearchInput");
 const previewImage = document.getElementById("editPreviewImage");
 const imageInput = document.getElementById("editImageFile");
 
-const SEED_PROFILES = [
-  {
-    id: "minty",
-    activityName: {
-      ko: "Minty",
-      en: "Minty",
-      ja: "ミンティ"
-    },
-    name: "김민승",
-    role: {
-      ko: "소프트웨어 개발자",
-      en: "Software Developer",
-      ja: "ソフトウェア開発者(かいはつしゃ)"
-    },
-    tagline: {
-      ko: "웹사이트을 만드는 학생 개발자",
-      en: "Student developer building website",
-      ja: "ウェブサイトを作(つく)る学生(がくせい)開発者(かいはつしゃ)"
-    },
-    affiliation: "대덕소프트웨어마이스터고등학교",
-    startedYear: 2023,
-    stack: ["HTML", "CSS", "JavaScript", "C", "C#", "Python"],
-    interests: ["Web Frontend", "Web Backend"],
-    projects: [
-      {
-        name: "Lyrics_bokaro",
-        description: {
-          ko: "가사 뷰어",
-          en: "Lyrics viewer",
-          ja: "歌詞ヴューアー"
-        },
-        link: "https://github.com/minty-developer/lyrics_bokaro"
-      },
-      {
-        name: "Page Loop",
-        description: {
-          ko: "웹 책 뷰어",
-          en: "web book viewer",
-          ja: "ウェブ本ビューアー"
-        },
-        link: "https://minty-developer.github.io/Page_Loop"
-      },
-      {
-        name: "Exercise Timer",
-        description: {
-          ko: "운동용 타이머",
-          en: "Timer for exercises",
-          ja: "運動用タイマー"
-        },
-        link: "https://github.com/minty-developer/Exercise_Timer"
-      }
-    ],
-    links: {
-      github: "https://github.com/minty-developer",
-      blog: "",
-      email: "mailto:gimminseung036@gmail.com"
-    },
-    image: "images/minty.jpg"
-  },
-  {
-    id: "suil",
-    activityName: {
-      ko: "수리",
-      en: "Suil",
-      ja: "スーリ"
-    },
-    name: "미상",
-    role: {
-      ko: "Butterscotch팀의 Eliasfunkin' Revival 소스 코더",
-      en: "Butterscotch team's Eliasfunkin' Revival source coder",
-      ja: "Butterscotchチームの Eliasfunkin' Revival ソースコーダー"
-    },
-    tagline: {
-      ko: "끝까지 나아가는 게임 개발/백엔드 개발자",
-      en: "Student developer building website",
-      ja: "ウェブサイトを作(つく)る学生(がくせい)開発者(かいはつしゃ)"
-    },
-    affiliation: "대덕소프트웨어마이스터고등학교",
-    startedYear: 2023,
-    stack: ["C", "Python", "Java", "HTML", "CSS", "Haxe"],
-    interests: ["Develop game", "Web"],
-    projects: [
-      {
-        name: "독수리봇 마크2",
-        description: {
-          ko: "디스코드, 개인작업",
-          en: "Discord, Personal Work",
-          ja: "Discord、個人作業"
-        },
-        link: "about:blank"
-      },
-      {
-        name: "로봇 코딩",
-        description: {
-          ko: "대회, 우수상 수상, 팀프로젝트",
-          en: "Competition, Excellence Award, Team Project",
-          ja: "大会、優秀賞受賞、チームプロジェクト"
-        },
-        link: "about:blank"
-      },
-      {
-        name: "Elasfunkin' Revival",
-        description: {
-          ko: "FNF모드(게임), 영상 조회수 2만회, 팀프로젝트",
-          en: "FNF mode (game), 20,000 video views, team project",
-          ja: "FNFモード（ゲーム）、動画再生回数2万回、チームプロジェクト"
-        },
-        link: "https://gamebanana.com/wips/98493"
-      }
-    ],
-    links: {
-      github: "https://github.com/suil0304",
-      blog: "",
-      email: "mailto:eagle030410@gmail.com"
-    },
-    image: "/Developer-Wiki/images/suil.png"
-  },
-  {
-    id: "iriss",
-    activityName: {
-      ko: "iriss",
-      en: "iriss",
-      ja: "イリス"
-    },
-    name: "미상",
-    role: {
-      ko: "게임 개발?자",
-      en: "Game developer?",
-      ja: "ゲーム開発？者"
-    },
-    tagline: {
-      ko: "범부 중 범부",
-      en: "The most ordinary of ordinary people",
-      ja: "凡人(ぼんじん)の極み(きわみ)"
-    },
-    affiliation: "대덕소프트웨어마이스터고등학교",
-    startedYear: 2022,
-    stack: ["Lua", "Python", "C", "C#", "HTML", "CSS"],
-    interests: ["Game", "FE"],
-    projects: [],
-    links: {
-      github: "https://github.com/dlrbqja",
-      blog: "",
-      email: ""
-    },
-    image: "/Developer-Wiki/images/dlrbqja.jpg"
-  }
-];
-
 function normalizeLocalAuthHost() {
   if (window.location.hostname !== "127.0.0.1") return false;
 
@@ -237,15 +88,17 @@ function normalizeImagePath(src) {
 
 async function getRemoteProfiles() {
   const snapshot = await getDocs(collection(db, "profiles"));
-  return snapshot.docs.map((profileDoc) => ({
-    sourceKey: profileDoc.id,
-    docId: profileDoc.id,
-    ...profileDoc.data()
-  })).sort((a, b) => {
-    const aName = a.activityName?.ko || a.activityName?.en || a.name || a.id || "";
-    const bName = b.activityName?.ko || b.activityName?.en || b.name || b.id || "";
-    return aName.localeCompare(bName);
-  });
+  return snapshot.docs
+    .map((profileDoc) => ({
+      sourceKey: profileDoc.id,
+      docId: profileDoc.id,
+      ...profileDoc.data()
+    }))
+    .sort((a, b) => {
+      const aName = a.activityName?.ko || a.activityName?.en || a.name || a.id || "";
+      const bName = b.activityName?.ko || b.activityName?.en || b.name || b.id || "";
+      return aName.localeCompare(bName);
+    });
 }
 
 async function loadProfiles() {
@@ -313,7 +166,8 @@ function clearEditor() {
   profileForm.reset();
   previewImage.src = DEFAULT_IMAGE;
   editorTitle.textContent = "New profile";
-  editorStatus.textContent = "This profile will be saved to Firestore.";
+  editorStatus.textContent = "This profile will be saved to Firebase.";
+  renderProfileList();
 }
 
 function fillEditor(profile) {
@@ -353,7 +207,7 @@ function fillEditor(profile) {
   renderProfileList();
 }
 
-function buildProfileFromForm(imageUrl = "") {
+function buildProfileFromForm() {
   return {
     id: getValue("editId"),
     name: getValue("editName"),
@@ -381,8 +235,7 @@ function buildProfileFromForm(imageUrl = "") {
       github: getValue("editGithub"),
       blog: getValue("editBlog"),
       email: toMailLink(getValue("editEmail"))
-    },
-    ...(imageUrl ? { image: imageUrl } : {})
+    }
   };
 }
 
@@ -483,7 +336,7 @@ async function deleteSelectedProfile() {
     return;
   }
 
-  const ok = window.confirm("Delete this Firestore profile?");
+  const ok = window.confirm("Delete this Firebase profile?");
   if (!ok) return;
 
   try {
@@ -511,29 +364,6 @@ async function upsertProfile(profile) {
   const docRef = doc(db, "profiles", profile.id);
   await setDoc(docRef, payload);
   return { id: docRef.id };
-}
-
-async function importSeedData() {
-  const ok = window.confirm("Import the bundled seed data into Firebase? Existing profiles with the same id will be updated.");
-  if (!ok) return;
-
-  const button = document.getElementById("importSeedBtn");
-  button.disabled = true;
-
-  try {
-    await loadProfiles();
-    for (const profile of SEED_PROFILES) {
-      await upsertProfile(profile);
-    }
-    await loadProfiles();
-    editorStatus.textContent = "Seed data imported.";
-    alert("Seed data imported to Firebase.");
-  } catch (error) {
-    console.error(error);
-    alert(`Seed import failed: ${error.message}`);
-  } finally {
-    button.disabled = false;
-  }
 }
 
 async function loginAdmin() {
@@ -564,7 +394,6 @@ function bindEvents() {
   document.getElementById("adminLoginBtn").addEventListener("click", loginAdmin);
   document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
   document.getElementById("addProfileBtn").addEventListener("click", clearEditor);
-  document.getElementById("importSeedBtn").addEventListener("click", importSeedData);
   document.getElementById("deleteProfileBtn").addEventListener("click", deleteSelectedProfile);
   profileForm.addEventListener("submit", saveProfile);
   searchInput.addEventListener("input", renderProfileList);

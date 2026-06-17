@@ -125,6 +125,20 @@ header {
   cursor: pointer;
 }
 
+.contact-admin-btn {
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  padding: 12px 18px;
+}
+
+.contact-admin-btn:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
 /* ===== header-right ===== */
 
 .header-right {
@@ -535,6 +549,27 @@ main {
   resize: vertical;
   font-family: "JetBrains Mono", Consolas, monospace;
   font-size: 13px;
+}
+
+.mypage-container {
+  max-width: 560px;
+  margin: 60px auto;
+}
+
+.mypage-panel {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 32px;
+}
+
+.mypage-panel h2 {
+  margin-bottom: 12px;
+}
+
+.mypage-panel p {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
 }
 
 /* =========================
