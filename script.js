@@ -1,3 +1,4 @@
+// [---IMPORT---]
 import { auth, db } from "./firebase.js";
 import {
   collection,
@@ -10,18 +11,23 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
+// [---DEFAULT VARS---]
 const DEFAULT_IMAGE = "images/default-profile.png";
 const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
 const SUPPORTED_LANGUAGES = ["ko", "en", "ja"];
 
+// [---SYSTEM VARS---]
 const params = new URLSearchParams(window.location.search);
 const requestedLang = params.get("lang") || "ko";
 const currentLang = SUPPORTED_LANGUAGES.includes(requestedLang) ? requestedLang : "ko";
 
+// [---개발자 데이터---]
 let developersData = [];
 
+// [---언어 반영---]
 document.documentElement.lang = currentLang;
 
+// [---현재 링크 정규화---]
 function normalizeLocalAuthHost() {
   if (window.location.hostname !== "127.0.0.1") return false;
 
@@ -31,12 +37,14 @@ function normalizeLocalAuthHost() {
   return true;
 }
 
+// [---언어 기본값 반영---]
 function getLocalizedValue(value, fallback = "") {
   if (!value) return fallback;
   if (typeof value === "string") return value;
   return value[currentLang] || value.ko || fallback;
 }
 
+// [---이미지 링크 정규화---]
 function normalizeImagePath(src) {
   if (!src) return DEFAULT_IMAGE;
   if (src.startsWith("/Developer-Wiki/")) {
@@ -45,6 +53,7 @@ function normalizeImagePath(src) {
   return src;
 }
 
+// [---사진 기본값 반영---]
 function setSafeImage(imgElement, src) {
   imgElement.src = normalizeImagePath(src);
   imgElement.onerror = () => {
@@ -52,6 +61,7 @@ function setSafeImage(imgElement, src) {
   };
 }
 
+// [---언어 변경 버튼 초기화---]
 function initLanguageButtons() {
   document.querySelectorAll("[data-lang]").forEach((button) => {
     button.classList.toggle("active", button.dataset.lang === currentLang);
@@ -61,6 +71,7 @@ function initLanguageButtons() {
   });
 }
 
+// [---카드 로딩---]
 function renderCards(data) {
   const container = document.querySelector(".card-container");
   if (!container) return;
@@ -107,6 +118,7 @@ function renderCards(data) {
   });
 }
 
+// [---검색 기능 초기화---]
 function initSearch() {
   const searchInput = document.getElementById("searchInput");
   if (!searchInput) return;
@@ -142,11 +154,13 @@ function initSearch() {
   });
 }
 
+// [---관리자 버튼 초기화---]
 function initAuthButton() {
   const loginButton = document.getElementById("loginBtn");
   const adminButton = document.querySelector(".admin-btn");
   if (!loginButton) return;
 
+  //firebase 관리자 확인
   const provider = new GoogleAuthProvider();
 
   loginButton.addEventListener("click", async () => {
@@ -158,6 +172,7 @@ function initAuthButton() {
         return;
       }
 
+      // 로그인 창 띄우기
       await signInWithPopup(auth, provider);
     } catch (error) {
       if (error.code === "auth/unauthorized-domain") {
@@ -171,6 +186,7 @@ function initAuthButton() {
     }
   });
 
+  // 로그인 된 경우
   onAuthStateChanged(auth, (user) => {
     loginButton.textContent = user ? "Logout" : "Google Login";
     if (adminButton) {
@@ -183,6 +199,7 @@ function initAuthButton() {
   });
 }
 
+// [---현재 개발자 리스트 로드---]
 function loadDevelopersRealtime() {
   onSnapshot(collection(db, "profiles"), (snapshot) => {
     developersData = snapshot.docs
@@ -199,6 +216,7 @@ function loadDevelopersRealtime() {
   });
 }
 
+// [---INIT---]
 window.addEventListener("DOMContentLoaded", () => {
   if (normalizeLocalAuthHost()) return;
 

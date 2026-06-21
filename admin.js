@@ -1,3 +1,4 @@
+// [---IMPORT---]
 import { auth, db } from "./firebase.js";
 import {
   collection,
@@ -14,15 +15,19 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
 
+// [---VARS---]
 const ADMIN_UID = "rzwqPY36dvPq4yovQ8pwfy7Mz4o1";
 const DEFAULT_IMAGE = "images/default-profile.png";
 const MAX_PROFILE_IMAGE_SIZE = 512;
 const MAX_IMAGE_DATA_URL_LENGTH = 900000;
 
+// [---프로필 내용 저장---]
 let profiles = [];
+//[---현재 고른 프로필 정보 저장---]
 let selectedProfileKey = "";
 let selectedDocId = "";
 
+// [---요소 가지고 오기---]
 const adminLogin = document.getElementById("adminLogin");
 const adminPanel = document.getElementById("adminPanel");
 const profileForm = document.getElementById("profileForm");
@@ -33,6 +38,7 @@ const searchInput = document.getElementById("adminSearchInput");
 const previewImage = document.getElementById("editPreviewImage");
 const imageInput = document.getElementById("editImageFile");
 
+// [---현재 링크 정규화---]
 function normalizeLocalAuthHost() {
   if (window.location.hostname !== "127.0.0.1") return false;
 
@@ -42,15 +48,18 @@ function normalizeLocalAuthHost() {
   return true;
 }
 
+// [---id 가지고 오기---]
 function getValue(id) {
   return document.getElementById(id)?.value.trim() || "";
 }
 
+// [---가지고 온 id 반영하기---]
 function setValue(id, value = "") {
   const element = document.getElementById(id);
   if (element) element.value = value ?? "";
 }
 
+// [---","로 리스트에 분리해서 저장---]
 function getCommaList(id) {
   return getValue(id)
     .split(",")
@@ -58,6 +67,7 @@ function getCommaList(id) {
     .filter(Boolean);
 }
 
+// [---프로젝트 파싱---]
 function parseProjects() {
   try {
     const projects = JSON.parse(getValue("editProjects") || "[]");
@@ -69,15 +79,18 @@ function parseProjects() {
   }
 }
 
+// [---Email 구조로 바꾸기---]
 function toMailLink(value) {
   if (!value) return "";
   return value.startsWith("mailto:") ? value : `mailto:${value}`;
 }
 
+// [---Email 추출해 내기---]
 function stripMailLink(value = "") {
   return value.replace(/^mailto:/, "");
 }
 
+// [---이미지 링크 정규화---]
 function normalizeImagePath(src) {
   if (!src) return DEFAULT_IMAGE;
   if (src.startsWith("/Developer-Wiki/")) {
@@ -86,6 +99,7 @@ function normalizeImagePath(src) {
   return src;
 }
 
+// [---프로필 리스트 가져오기---]
 async function getRemoteProfiles() {
   const snapshot = await getDocs(collection(db, "profiles"));
   return snapshot.docs
@@ -101,6 +115,7 @@ async function getRemoteProfiles() {
     });
 }
 
+// [---프로필 가져오기---]
 async function loadProfiles() {
   profiles = await getRemoteProfiles();
   renderProfileList();
@@ -111,6 +126,7 @@ async function loadProfiles() {
   }
 }
 
+// [---검색 결과 가져오기---]
 function renderProfileList() {
   const keyword = searchInput.value.toLowerCase().trim();
   const filteredProfiles = profiles.filter((profile) => {
@@ -135,6 +151,7 @@ function renderProfileList() {
     return;
   }
 
+  // 화면 그리기
   filteredProfiles.forEach((profile) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -160,6 +177,7 @@ function renderProfileList() {
   });
 }
 
+// [---편집 화면 지우기---]
 function clearEditor() {
   selectedProfileKey = "";
   selectedDocId = "";
@@ -170,6 +188,7 @@ function clearEditor() {
   renderProfileList();
 }
 
+// [---편집 화면 채우기---]
 function fillEditor(profile) {
   selectedProfileKey = profile.sourceKey;
   selectedDocId = profile.docId || "";
@@ -207,6 +226,7 @@ function fillEditor(profile) {
   renderProfileList();
 }
 
+// [---편집 화면 구조화(저장용)---]
 function buildProfileFromForm() {
   return {
     id: getValue("editId"),
@@ -239,6 +259,7 @@ function buildProfileFromForm() {
   };
 }
 
+// [---이미지 URL 받기---]
 async function getProfileImageUrl(file) {
   if (!file) return "";
 
@@ -251,6 +272,7 @@ async function getProfileImageUrl(file) {
   }
 }
 
+// [---이미지 -> URL---]
 function resizeImageToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -289,6 +311,7 @@ function resizeImageToDataUrl(file) {
   });
 }
 
+// [---프로필 저장하는 함수---]
 async function saveProfile(event) {
   event.preventDefault();
 
@@ -330,6 +353,7 @@ async function saveProfile(event) {
   }
 }
 
+// [---프로필 지우기---]
 async function deleteSelectedProfile() {
   if (!selectedDocId) {
     alert("Select a Firebase profile first.");
@@ -348,6 +372,17 @@ async function deleteSelectedProfile() {
     alert(`Profile delete failed: ${error.message}`);
   }
 }
+
+// [---프로필을 UPSERT하는 함수---]
+
+/*
+
+UPSERT란?
+
+- UPDATE + INSERT
+- 없으면 추가, 있으면 업데이트!
+
+*/
 
 async function upsertProfile(profile) {
   const existing = profiles.find((item) => item.id === profile.id);
@@ -377,6 +412,7 @@ async function loginAdmin() {
   }
 }
 
+// [---관리자 상태 확인---] 
 function initAdminAuth() {
   onAuthStateChanged(auth, async (user) => {
     const isAdmin = user?.uid === ADMIN_UID;
@@ -390,6 +426,7 @@ function initAdminAuth() {
   });
 }
 
+// [---Events 바인딩---]
 function bindEvents() {
   document.getElementById("adminLoginBtn").addEventListener("click", loginAdmin);
   document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
@@ -404,6 +441,7 @@ function bindEvents() {
   });
 }
 
+// [---INIT---]
 window.addEventListener("DOMContentLoaded", () => {
   if (normalizeLocalAuthHost()) return;
 
